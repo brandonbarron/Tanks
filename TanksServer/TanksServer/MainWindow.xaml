@@ -1,0 +1,37 @@
+﻿<Controls:MetroWindow x:Class="TanksServer.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:Controls="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+        xmlns:local="clr-namespace:TanksServer"
+        xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
+        Dialog:DialogParticipation.Register="{Binding}"
+        mc:Ignorable="d"
+        Title="Tanks Server" Height="350" Width="525">
+    <Grid Margin="10">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="2*"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="8*"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Grid.Column="0">
+                <Button Content="Start Server" Command="{Binding StartServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                <Button Content="Stop Server" Command="{Binding StopServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <Label Content="Status:"/>
+                <Label Content="{Binding ServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1">
+            <DataGrid ItemsSource="{Binding CurrentGames}">
+            
+            </DataGrid>
+        </Grid>
+    </Grid>
+</Controls:MetroWindow>
