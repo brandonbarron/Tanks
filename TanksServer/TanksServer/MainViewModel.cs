@@ -17,21 +17,21 @@
                     Id = 1,
                     Players = 3,
                     TotalTime = "1:03",
-                    Winner = "Player1"
+                    CurrentWinner = "Player1"
                 },
                 new
                 {
-                    Id = 1,
-                    Players = 3,
-                    TotalTime = "1:03",
-                    Winner = "Player1"
+                    Id = 2,
+                    Players = 2,
+                    TotalTime = "4:13",
+                    CurrentWinner = "Player1"
                 },
                 new
                 {
-                    Id = 1,
-                    Players = 3,
-                    TotalTime = "1:03",
-                    Winner = "Player1"
+                    Id = 3,
+                    Players = 17,
+                    TotalTime = "30:03",
+                    CurrentWinner = "Player1"
                 }
             };
         }
