@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace TanksCommon
 {
-    public class Class1
+    public class Messenger
     {
     }
 }
