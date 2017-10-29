@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace TanksCommon
 {
-    class Receiver
+    class Server
     {
         public static void Sample()
         {
