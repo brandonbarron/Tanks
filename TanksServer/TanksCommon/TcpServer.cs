@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace TanksCommon
 {
-    class Client
+    class TcpServer
     {
         public static void Sample(string[] args)
         {
@@ -17,7 +18,7 @@ namespace TanksCommon
                 int.TryParse(args[1], out repeatCount);
 
             // Create a TcpClient
-            var client = new TcpClient();
+            var client = new System.Net.Sockets.TcpClient();
 
             // Connect the client to the server -- remember that TCP is connection orient
             client.Connect("127.0.0.1", 15000);

@@ -2,12 +2,13 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace TanksCommon
 {
-    public class ClientMessenger
+    public class ClientMessenger : TheMessenger
     {
         bool _connectedToGame;
         bool _connectedToServer;
@@ -15,13 +16,20 @@ namespace TanksCommon
         int _gameId;
         string _gameServerAddress;
         int _gameServerPort;
-        public ClientMessenger()
+        public ClientMessenger() : base(new TcpClient())
         {
 
         }
 
+        private bool Connect()
+        {
+            _clientSocket.Connect("127.0.0.1", 1500);
+            return true;
+        }
+
         public bool ConnectToGameServer()
         {
+            this.Connect();
             return false;
         }
 
@@ -49,8 +57,9 @@ namespace TanksCommon
             return 0;
         }
 
-        private void HandleRecievedMessage(Stream stream)
+        protected override void HandleRecievedMessage(byte[] messageBytes)
         {
+            var stream = new MemoryStream(messageBytes);
             short messageType = MessageDecoder.DecodeMessageType(stream);
             switch (messageType)
             {
@@ -77,7 +86,11 @@ namespace TanksCommon
                     var requestMove = MessageDecoder.DecodeMessage<SharedObjects.RequestMove>(stream);
                     break;
                 case 7:
-                    var GameMove = MessageDecoder.DecodeMessage<SharedObjects.GameMove>(stream);
+                    var gameMove = MessageDecoder.DecodeMessage<SharedObjects.GameMove>(stream);
+
+                    break;
+                case 8:
+                    var listOfOpenGames = MessageDecoder.DecodeMessage<SharedObjects.ListOfOpenGames>(stream);
 
                     break;
             }
