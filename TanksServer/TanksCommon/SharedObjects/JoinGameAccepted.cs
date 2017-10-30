@@ -6,8 +6,10 @@ using System.Threading.Tasks;
 
 namespace TanksCommon.SharedObjects
 {
-    class JoinGameAccepted
+    [Serializable]
+    class JoinGameAccepted : IMessage
     {
+        public int Id { get => 4; }
         public int GameId { get; set; }
         public int NewPlayerId { get; set; }
         public object GameSettings { get; set; }
