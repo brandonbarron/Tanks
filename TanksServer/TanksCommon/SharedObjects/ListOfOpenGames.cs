@@ -8,7 +8,7 @@ namespace TanksCommon.SharedObjects
 {
     class ListOfOpenGames : IMessage
     {
-        public int Id { get => 8; }
+        public short Id { get => 8; }
         public List<OpenGame> OpenGames { get; set; }
     }
 }

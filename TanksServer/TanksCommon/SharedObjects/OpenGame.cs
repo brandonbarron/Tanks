@@ -8,7 +8,7 @@ namespace TanksCommon.SharedObjects
 {
     public class OpenGame
     {
-        public int GameId { get; set; }
+        public short GameId { get; set; }
         public int MapId { get; set; }
         public int PlayerCapacity { get; set; }
         public int NumberOfPlayers { get; set; }

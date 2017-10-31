@@ -11,12 +11,16 @@ namespace TanksCommon
 {
     public class MessageEncoder
     {
-        public static Stream EncodeMessage<T>(Stream memoryStream, T theMessage) where T : SharedObjects.IMessage
+        public static MemoryStream EncodeMessage<T>(Stream memoryStream, T theMessage) where T : SharedObjects.IMessage
         {
-            Write(memoryStream, (short)theMessage.Id);
+            Write(memoryStream, theMessage.Id);
             XmlSerializer cereal = new XmlSerializer(typeof(T));
             cereal.Serialize(memoryStream, theMessage);
-            return memoryStream;
+            
+            memoryStream.Seek(0, SeekOrigin.Begin);
+            var messageBytes = new byte[1024];
+            memoryStream.Read(messageBytes, 0, messageBytes.Length);
+            return new MemoryStream(messageBytes);
         }
 
         public static void Write(Stream memoryStream, short value)

@@ -24,6 +24,7 @@ namespace ClientTester
         public MainWindow()
         {
             InitializeComponent();
+            log4net.Config.XmlConfigurator.Configure();
             vm = new MainViewModel(MahApps.Metro.Controls.Dialogs.DialogCoordinator.Instance);
             this.DataContext = vm;
         }

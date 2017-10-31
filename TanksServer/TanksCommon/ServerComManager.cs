@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
@@ -13,7 +14,12 @@ namespace TanksCommon
     /// </summary>
     public class ServerComManager
     {
-        public static void Start() {
+        private static readonly ILog _log = LogManager.GetLogger(typeof(ServerComManager));
+        public ServerComManager()
+        {
+            log4net.Config.XmlConfigurator.Configure();
+        }
+        public void Start() {
             TcpListener serverSocket = new TcpListener(System.Net.IPAddress.Any, 1500);
             System.Net.Sockets.TcpClient clientSocket = default(System.Net.Sockets.TcpClient);
             int clientId = 0;
@@ -33,7 +39,7 @@ namespace TanksCommon
             serverSocket.Stop();
         }
 
-        public static void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId) {
+        public void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId) {
             var client = new ServerMessenger(clientSocket, clientId);//TODO: this would be the game manager instead
         }
     }

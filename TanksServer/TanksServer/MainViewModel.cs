@@ -1,15 +1,20 @@
-﻿namespace TanksServer
+﻿using System.Threading;
+
+namespace TanksServer
 {
     public class MainViewModel : System.ComponentModel.INotifyPropertyChanged
     {
-        private readonly MahApps.Metro.Controls.Dialogs.IDialogCoordinator dialogCoordinator;
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(MainViewModel));
+        private readonly MahApps.Metro.Controls.Dialogs.IDialogCoordinator _dialogCoordinator;
+        private readonly TanksCommon.ServerComManager _serverComManager;
 
         public MainViewModel(MahApps.Metro.Controls.Dialogs.IDialogCoordinator instance)
         {
-            this.dialogCoordinator = instance;
+            this._dialogCoordinator = instance;
             _startServerCommand = new DelegateCommand<object>((p) => StartServer());
             _stopServerCommand = new DelegateCommand<object>((p) => StopServer());
             ServerStatus = "Dead";
+            this._serverComManager = new TanksCommon.ServerComManager();
             CurrentGames = new System.Collections.ObjectModel.ObservableCollection<object>()
             {
                 new
@@ -57,7 +62,9 @@
 
         private void StartServer()
         {
-
+            _log.Debug("starting server");
+            Thread t = new Thread(this._serverComManager.Start);
+            t.Start();
         }
 
         private void StopServer()

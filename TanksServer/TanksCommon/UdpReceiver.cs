@@ -1,4 +1,5 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -12,7 +13,7 @@ namespace TanksCommon
     //based on the provided example from SimpleUDPSocket by Dr. Clyde
     public class UdpReceiver
     {
-        //private static readonly ILog Logger = LogManager.GetLogger(typeof(Receiver));
+        private static readonly ILog Logger = LogManager.GetLogger(typeof(UdpReceiver));
 
         private readonly System.Net.Sockets.UdpClient _myUdpClient;
         public delegate void ReceivedDataDelegate(byte[] bytes);

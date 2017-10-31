@@ -9,7 +9,7 @@ namespace TanksCommon.SharedObjects
     [Serializable]
     class JoinGameAccepted : IMessage
     {
-        public int Id { get => 4; }
+        public short Id { get => 4; }
         public int GameId { get; set; }
         public int NewPlayerId { get; set; }
         public object GameSettings { get; set; }

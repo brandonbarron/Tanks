@@ -8,6 +8,6 @@ namespace TanksCommon.SharedObjects
 {
     public interface IMessage
     {
-        int Id { get; }
+        short Id { get; }
     }
 }
