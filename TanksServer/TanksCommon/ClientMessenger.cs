@@ -18,20 +18,37 @@ namespace TanksCommon
         int _gameId;
         string _gameServerAddress;
         int _gameServerPort;
+        public delegate void SocketEvent(string socketEvent);
+        public event SocketEvent SocketEventInfo;
         public ClientMessenger() : base(new TcpClient())
         {
             log4net.Config.XmlConfigurator.Configure();
         }
 
-        private bool Connect()
+        private bool Connect(string ipAddress, int port)
         {
-            _clientSocket.Connect("127.0.0.1", 1500);
-            return true;
+            try
+            {
+                _clientSocket.Connect(ipAddress, port);
+                SocketEventInfo("Connected");
+                return true;
+            }
+            catch
+            {
+                SocketEventInfo("Failed");
+                return false;
+            }
         }
 
-        public void ConnectToGameServer()
+        public void ConnectToGameServer(string ipAddress, int port)
         {
-            this.Connect();
+            this.Connect(ipAddress, port);
+        }
+
+        public void StopGame()
+        {
+            _clientSocket.Close();
+            _clientSocket.Dispose();
         }
 
         private void HandleAckMessage()

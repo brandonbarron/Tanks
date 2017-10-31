@@ -8,12 +8,25 @@
         xmlns:Dialog="clr-namespace:MahApps.Metro.Controls.Dialogs;assembly=MahApps.Metro"
         Dialog:DialogParticipation.Register="{Binding}"
         mc:Ignorable="d"
-        Title="Tanks Server" Height="350" Width="525">
+        Title="Tanks Test Client" Height="350" Width="525">
     <Grid Margin="10">
         <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Label Content="Server IP:"/>
+                    <TextBox Text="{Binding ServerIp, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Label Content="Server Port:"/>
+                    <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </StackPanel>
+        </Grid>
+        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="8*"/>

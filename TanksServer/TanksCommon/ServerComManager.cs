@@ -15,12 +15,15 @@ namespace TanksCommon
     public class ServerComManager
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(ServerComManager));
+        public delegate void SocketEvent(string socketEvent);
+        public event SocketEvent SocketEventInfo;
         public ServerComManager()
         {
             log4net.Config.XmlConfigurator.Configure();
         }
-        public void Start() {
-            TcpListener serverSocket = new TcpListener(System.Net.IPAddress.Any, 1500);
+        public void Start(int port, CancellationToken token) {
+            TcpListener serverSocket = new TcpListener(System.Net.IPAddress.Any, port);
+            SocketEventInfo("Listening");
             System.Net.Sockets.TcpClient clientSocket = default(System.Net.Sockets.TcpClient);
             int clientId = 0;
 
@@ -28,19 +31,20 @@ namespace TanksCommon
 
             clientId = 0;
 
-            while (true) {
+            while (!token.IsCancellationRequested) {
                 clientId += 1;
                 clientSocket = serverSocket.AcceptTcpClient();
-                Thread thread = new Thread(() => StartServerMessenger(clientSocket, clientId));
+                _log.Debug($"New TCP Client connected");
+                Thread thread = new Thread(() => StartServerMessenger(clientSocket, clientId, token));
                 thread.Start();
             }
-            //TODO: provide cancellation token to close
             clientSocket.Close();
             serverSocket.Stop();
+            SocketEventInfo("Closed");
         }
 
-        public void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId) {
-            var client = new ServerMessenger(clientSocket, clientId);//TODO: this would be the game manager instead
+        public void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId, CancellationToken token) {
+            var client = new ServerMessenger(clientSocket, clientId, token);//TODO: this would be the game manager instead
         }
     }
 }

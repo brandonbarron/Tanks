@@ -14,11 +14,13 @@
             <RowDefinition Height="80"/>
             <RowDefinition Height="5"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
+                <ColumnDefinition Width="auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
                 <Button Content="Start Server" Command="{Binding StartServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
@@ -28,11 +30,20 @@
                 <Label Content="Status:"/>
                 <Label Content="{Binding ServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
+                <Label Content="Server Port:"/>
+                <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}" Height="20" VerticalAlignment="Top"/>
+            </StackPanel>
         </Grid>
         <Separator Grid.Row="1" VerticalAlignment="Center"/>
         <Grid Grid.Row="2" Margin="0 0 0 0" VerticalAlignment="Top" >
             <DataGrid ItemsSource="{Binding CurrentGames}">
             
+            </DataGrid>
+        </Grid>
+        <Grid Grid.Row="3" Margin="0 0 0 0" VerticalAlignment="Top" >
+            <DataGrid ItemsSource="{Binding Log}">
+
             </DataGrid>
         </Grid>
     </Grid>
