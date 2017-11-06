@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace TanksCommon.SharedObjects
 {
     [Serializable]
-    public class ListOfOpenGames : IMessage
+    public class RequestGames : IMessage
     {
-        public short Id { get => 8; }
-        public List<OpenGame> OpenGames { get; set; }
+        public short Id { get => 9; }
+
     }
 }

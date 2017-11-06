@@ -25,18 +25,33 @@
                     <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <StackPanel Grid.Column="0" Orientation="Horizontal">
+                    <Label Content="Game Server IP:"/>
+                    <TextBox Text="{Binding GameServerIp, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                    <Label Content="Game Server Port:"/>
+                    <TextBox Text="{Binding GameServerPort, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+            </StackPanel>
         </Grid>
         <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="8*"/>
+                <ColumnDefinition Width="2*"/>
+                <ColumnDefinition Width="6*"/>
             </Grid.ColumnDefinitions>
             <StackPanel Grid.Column="0">
+                <Button Content="Connect Main Server" Command="{Binding ConnectToMainServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                <Button Content="Disconnect Main Server" Command="{Binding DisconnectMainServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+            </StackPanel>
+            <StackPanel Grid.Column="1">
                 <Button Content="Start Game" Command="{Binding StartGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
                 <Button Content="Stop Game" Command="{Binding StopGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
                 <Button Content="Send Move" Command="{Binding SendMoveCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
             </StackPanel>
-            <StackPanel Grid.Column="1" Orientation="Horizontal">
+            <StackPanel Grid.Column="2" Orientation="Horizontal">
                 <Label Content="Status:"/>
                 <Label Content="{Binding ServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>

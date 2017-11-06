@@ -9,7 +9,7 @@ using System.Xml.Serialization;
 
 namespace TanksCommon
 {
-    class MessageDecoder
+    public class MessageDecoder
     {
         public static short DecodeMessageType(Stream memoryStream)
         {

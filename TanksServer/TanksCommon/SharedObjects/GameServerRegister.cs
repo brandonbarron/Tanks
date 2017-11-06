@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace TanksCommon.SharedObjects
 {
-    class GameServerRegister : IMessage
+    [Serializable]
+    public class GameServerRegister : IMessage
     {
         public short Id { get => 100; }
         public List<OpenGame> OpenGames { get; set; }

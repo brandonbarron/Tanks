@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TanksCommon
+namespace GameCom
 {
     //based on the provided example from SimpleUDPSocket by Dr. Clyde
     public class UdpReceiver
@@ -29,7 +29,7 @@ namespace TanksCommon
         {
             while (!cancelationToken.IsCancellationRequested)
             {
-                IPEndPoint remoteEp = new IPEndPoint(IPAddress.Any, 53000);
+                IPEndPoint remoteEp = new IPEndPoint(IPAddress.Any, 1500);
                 byte[] bytes = null;
 
                 try

@@ -8,7 +8,7 @@ using System.Runtime.Serialization;
 namespace TanksCommon.SharedObjects
 {
     [Serializable]
-    class RequestMove : IMessage
+    public class RequestMove : IMessage
     {
         public short Id { get => 6; }
         public int GameId { get; set; }

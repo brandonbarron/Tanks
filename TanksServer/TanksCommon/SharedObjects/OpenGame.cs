@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace TanksCommon.SharedObjects
 {
+    [Serializable]
     public class OpenGame
     {
         public short GameId { get; set; }

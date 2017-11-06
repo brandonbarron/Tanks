@@ -109,6 +109,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\GameCom\GameCom.csproj">
+      <Project>{55c4506c-df2f-4f89-85a3-a72494eb312f}</Project>
+      <Name>GameCom</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TanksCommon\TanksCommon.csproj">
       <Project>{418e5c7a-259d-4300-9ea6-c61d6fcab1d2}</Project>
       <Name>TanksCommon</Name>

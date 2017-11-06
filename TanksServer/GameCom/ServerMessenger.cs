@@ -8,7 +8,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace TanksCommon
+namespace GameCom
 {
     public class ServerMessenger : TheMessenger
     {
@@ -63,49 +63,63 @@ namespace TanksCommon
         protected override void HandleRecievedMessage(byte[] messageBytes)
         {
             var stream = new MemoryStream(messageBytes);
-            short messageType = MessageDecoder.DecodeMessageType(stream);
+            short messageType = TanksCommon.MessageDecoder.DecodeMessageType(stream);
             switch (messageType)
             {
                 case 1:
-                    var gameStatus = MessageDecoder.DecodeMessage<SharedObjects.GameStatus>(stream);
+                    var gameStatus = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameStatus>(stream);
                     _log.Debug($"Received game status: {gameStatus}");
                     ReceivedDataLog($"Received game status: {gameStatus}");
                     break;
                 case 2:
-                    var invalidMove = MessageDecoder.DecodeMessage<SharedObjects.InvalidMove>(stream);
+                    var invalidMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.InvalidMove>(stream);
                     _log.Debug($"Received invalidMove: {invalidMove}");
                     ReceivedDataLog($"Received invalidMove: {invalidMove}");
                     break;
                 case 3:
-                    var joinGame = MessageDecoder.DecodeMessage<SharedObjects.JoinGame>(stream);
+                    var joinGame = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.JoinGame>(stream);
                     _log.Debug($"Received joinGame: {joinGame}");
                     ReceivedDataLog($"Received joinGame: {joinGame}");
                     break;
                 case 4:
-                    var joinGameAccepted = MessageDecoder.DecodeMessage<SharedObjects.JoinGameAccepted>(stream);
+                    var joinGameAccepted = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.JoinGameAccepted>(stream);
                     _log.Debug($"Received joinGameAccepted: {joinGameAccepted}");
                     ReceivedDataLog($"Received joinGameAccepted: {joinGameAccepted}");
                     break;
                 case 5:
-                    var moveAccepted = MessageDecoder.DecodeMessage<SharedObjects.MoveAccepted>(stream);
+                    var moveAccepted = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.MoveAccepted>(stream);
                     _log.Debug($"Received moveAccepted: {moveAccepted}");
                     ReceivedDataLog($"Received moveAccepted: {moveAccepted}");
                     break;
                 case 6:
-                    var requestMove = MessageDecoder.DecodeMessage<SharedObjects.RequestMove>(stream);
+                    var requestMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.RequestMove>(stream);
                     _log.Debug($"Received requestMove: {requestMove}");
                     ReceivedDataLog($"Received requestMove: {requestMove}");
                     break;
                 case 7:
-                    var gameMove = MessageDecoder.DecodeMessage<SharedObjects.GameMove>(stream);
+                    var gameMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameMove>(stream);
                     _log.Debug($"Received gameMove: {gameMove}");
                     ReceivedDataLog($"Received gameMove: {gameMove}");
                     break;
                 case 8:
-                    var listOfOpenGames = MessageDecoder.DecodeMessage<SharedObjects.ListOfOpenGames>(stream);
+                    var listOfOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.ListOfOpenGames>(stream);
                     _log.Debug($"Received listOfOpenGames: {listOfOpenGames}");
                     ReceivedDataLog($"Received listOfOpenGames: {listOfOpenGames}");
+                    AddGamesToLedger(listOfOpenGames);
                     break;
+                case 9:
+                    var requestOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.RequestGames>(stream);
+                    _log.Debug($"Received requestOpenGames: {requestOpenGames}");
+                    ReceivedDataLog($"Received requestOpenGames: {requestOpenGames}");
+                    break;
+            }
+        }
+
+        private void AddGamesToLedger(TanksCommon.SharedObjects.ListOfOpenGames games)
+        {
+            foreach(var game in games.OpenGames)
+            {
+                
             }
         }
         

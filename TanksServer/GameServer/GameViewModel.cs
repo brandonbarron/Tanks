@@ -8,9 +8,10 @@ namespace GameServer
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(GameViewModel));
         private readonly MahApps.Metro.Controls.Dialogs.IDialogCoordinator _dialogCoordinator;
-        private readonly TanksCommon.ServerComManager _serverComManager;
+        private readonly GameCom.ServerComManager _serverComManager;
+        private readonly GameCom.ClientMessenger _clientMessenger;
         private readonly CancellationTokenSource _cancellationTokenSource;
-
+        private Thread tcpThread;
         public GameViewModel(MahApps.Metro.Controls.Dialogs.IDialogCoordinator instance)
         {
             this._dialogCoordinator = instance;
@@ -22,12 +23,17 @@ namespace GameServer
             GamePort = 1501;
             ServerAddress = "127.0.0.1";
             ServerPort = 1500;
-            this._serverComManager = new TanksCommon.ServerComManager();
+            var localEp = new System.Net.IPEndPoint(System.Net.IPAddress.Any, 1501);
+            var myUdpClient = new System.Net.Sockets.UdpClient(localEp);
+            myUdpClient.Client.ReceiveTimeout = 1000;
+            this._serverComManager = new GameCom.ServerComManager(myUdpClient);
             this._serverComManager.SocketEventInfo += _serverComManager_SocketEventInfo;
             
             Log = new System.Collections.ObjectModel.ObservableCollection<LogEvent>();
-            TanksCommon.ServerMessenger.ReceivedDataLog += ServerMessenger_ReceivedDataLog;
+            GameCom.ServerMessenger.ReceivedDataLog += ServerMessenger_ReceivedDataLog;
             _cancellationTokenSource = new CancellationTokenSource();
+            _clientMessenger = new GameCom.ClientMessenger(myUdpClient);
+            _clientMessenger.SocketEventInfo += _clientMessenger_SocketEventInfo;
         }
 
         private readonly DelegateCommand<object> _startServerCommand;
@@ -54,6 +60,17 @@ namespace GameServer
             }
         }
 
+        private string _gameServerStatus;
+        public string GameServerStatus
+        {
+            get => _gameServerStatus;
+            private set
+            {
+                _gameServerStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
         public System.Collections.ObjectModel.ObservableCollection<LogEvent> Log { get; private set; }
 
         private void StartServer()
@@ -70,12 +87,25 @@ namespace GameServer
 
         private void ConnectToMainServer()
         {
-
+            _log.Debug("Connecting to Main Server");
+            var gameReg = new TanksCommon.SharedObjects.GameServerRegister()
+            {
+                OpenGames = new System.Collections.Generic.List<TanksCommon.SharedObjects.OpenGame>()
+                {
+                    new TanksCommon.SharedObjects.OpenGame()
+                    {
+                        GameId = 1, MapId = 1, NumberOfPlayers = 5, PlayerCapacity = 3
+                    }
+                }
+            };
+            tcpThread = new Thread(() => this._clientMessenger.ConnectToMainServerAndRegister(ServerAddress, ServerPort, gameReg));
+            tcpThread.Start();
         }
 
         private void DisconnectFromMainServer()
         {
-
+            this._clientMessenger.StopGame();
+            tcpThread.Abort();
         }
 
         private void ServerMessenger_ReceivedDataLog(string logString)
@@ -86,6 +116,11 @@ namespace GameServer
         private void _serverComManager_SocketEventInfo(string socketEvent)
         {
             Application.Current.Dispatcher.Invoke(() => ServerStatus = socketEvent, DispatcherPriority.Background);
+        }
+
+        private void _clientMessenger_SocketEventInfo(string socketEvent)
+        {
+            Application.Current.Dispatcher.Invoke(() => GameServerStatus = socketEvent, DispatcherPriority.Background);
         }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

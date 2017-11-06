@@ -6,7 +6,7 @@ using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TanksCommon
+namespace GameCom
 {
     abstract public class TheMessenger
     {
@@ -51,5 +51,18 @@ namespace TanksCommon
             networkStream.Write(messageBytes, 0, messageBytes.Length);
             networkStream.Flush();
         }
+
+        protected void SendObjectToTcpClient<T>(T theObject, [System.Runtime.CompilerServices.CallerMemberName] string sendingFrom = "") where T : TanksCommon.SharedObjects.IMessage
+        {
+            using (var stream = new System.IO.MemoryStream())
+            {
+                _log.Debug($"Sending object from: {sendingFrom}");
+                var messageStream = TanksCommon.MessageEncoder.EncodeMessage(stream, theObject);
+                messageStream.Seek(0, System.IO.SeekOrigin.Begin);
+                this.SendDataToClient(messageStream.ToArray());
+            }
+        }
+
+        
     }
 }
