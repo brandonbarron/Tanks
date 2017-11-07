@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Game", "Game\Game.csproj", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCom", "GameCom\GameCom.csproj", "{55C4506C-DF2F-4F89-85A3-A72494EB312F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TanksTest", "TanksCommonTest\TanksTest.csproj", "{A7144A25-849C-49ED-9A3F-B76604F59D74}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,6 +47,10 @@ Global
 		{55C4506C-DF2F-4F89-85A3-A72494EB312F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{55C4506C-DF2F-4F89-85A3-A72494EB312F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{55C4506C-DF2F-4F89-85A3-A72494EB312F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
