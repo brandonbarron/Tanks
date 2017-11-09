@@ -11,5 +11,7 @@ namespace TanksCommon.SharedObjects
     {
         public short Id { get => 100; }
         public List<OpenGame> OpenGames { get; set; }
+
+        public string OpenGamesString { get => OpenGames.ToString(); }
     }
 }

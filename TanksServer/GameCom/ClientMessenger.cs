@@ -14,6 +14,8 @@ namespace GameCom
         private static readonly ILog _log = LogManager.GetLogger(typeof(ClientMessenger));
         public delegate void SocketEvent(string socketEvent);
         public event SocketEvent SocketEventInfo;
+        public delegate void RecievedOpenGames(TanksCommon.SharedObjects.ListOfOpenGames games);
+        public event RecievedOpenGames RecievedOpenGamesEvent;
         private readonly UdpSender _udpSender;
         public ClientMessenger(UdpClient udpClient) : base(new TcpClient())
         {
@@ -26,13 +28,35 @@ namespace GameCom
             try
             {
                 _clientSocket.Connect(ipAddress, port);
+                _networkStream = _clientSocket.GetStream();
                 SocketEventInfo("Connected");
+                System.Threading.Thread thread = new System.Threading.Thread(() => GetStream(_clientSocket));
+                thread.Start();
                 return true;
             }
             catch
             {
                 SocketEventInfo("Failed");
                 return false;
+            }
+        }
+
+        public void GetStream(TcpClient clientSocket)
+        {
+            var keepGoing = true;
+            while (keepGoing)
+            {
+                try
+                {
+                    //NetworkStream stream = clientSocket.GetStream();
+                    _networkStream = clientSocket.GetStream();
+                    keepGoing = ReceiveDataFromClient(_networkStream);
+                }
+                catch
+                {
+                    _log.Debug($"Connection closed by client");
+                    keepGoing = false;
+                }
             }
         }
 
@@ -64,6 +88,12 @@ namespace GameCom
             _log.Debug($"Sending Move: {move}");
             this.SendObjectToTcpClient(move);
             return false;
+        }
+
+        public void RequestOpenGames()
+        {
+            _log.Debug("Requesting open games");
+            this.SendObjectToTcpClient(new TanksCommon.SharedObjects.RequestGames());
         }
 
         public bool JoinGame(int gameId)
@@ -125,7 +155,7 @@ namespace GameCom
                 case 8:
                     var listOfOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.ListOfOpenGames>(stream);
                     _log.Debug($"Received listOfOpenGames: {listOfOpenGames}");
-
+                    RecievedOpenGamesEvent(listOfOpenGames);
                     break;
             }
         }

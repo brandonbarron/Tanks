@@ -30,8 +30,9 @@ namespace GameCom
             while (keepGoing && !token.IsCancellationRequested) {
                 try
                 {
-                    NetworkStream stream = clientSocket.GetStream();
-                    keepGoing = ReceiveDataFromClient(stream);
+                    //NetworkStream stream = clientSocket.GetStream();
+                    _networkStream = clientSocket.GetStream();
+                    keepGoing = ReceiveDataFromClient(_networkStream);
                 }catch
                 {
                     _log.Debug($"Connection closed by client, id: {_clientId}");
@@ -111,17 +112,30 @@ namespace GameCom
                     var requestOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.RequestGames>(stream);
                     _log.Debug($"Received requestOpenGames: {requestOpenGames}");
                     ReceivedDataLog($"Received requestOpenGames: {requestOpenGames}");
+                    SendOpenGamesToPlayer();
                     break;
             }
         }
 
         private void AddGamesToLedger(TanksCommon.SharedObjects.ListOfOpenGames games)
         {
-            foreach(var game in games.OpenGames)
-            {
-                
-            }
+            Game.GameLedger.Instance.ListOfOpenGames.Add(games);
         }
         
+
+        private void SendOpenGamesToPlayer()
+        {
+            _log.Debug("Sending open games to player");
+            var allGames = new TanksCommon.SharedObjects.ListOfOpenGames();
+            foreach(var gameList in Game.GameLedger.Instance.ListOfOpenGames)
+            {
+                foreach(var game in gameList.OpenGames)
+                {
+                    allGames.OpenGames.Add(game);
+                }
+            }
+            allGames.OpenGames = Game.GameLedger.Instance.ListOfOpenGames[0].OpenGames;
+            this.SendObjectToTcpClient(allGames);
+        }
     }
 }

@@ -22,9 +22,10 @@ namespace ClientTester
             this.dialogCoordinator = instance;
             _startGameCommand = new DelegateCommand<object>((p) => StartGame());
             _stopGameCommand = new DelegateCommand<object>((p) => StopGame());
-            _sendMoveCommand = new DelegateCommand<object>((p) => SendMove());
+            _askOpenGamesCommand = new DelegateCommand<object>((p) => AskOpenGames());
             _connectToMainServerCommand = new DelegateCommand<object>((p) => ConnectToMainServer());
             _disconnectMainServerCommand = new DelegateCommand<object>((p) => DisconnectMainServer());
+            GameServers = new System.Collections.ObjectModel.ObservableCollection<TanksCommon.SharedObjects.ListOfOpenGames>();
             ServerStatus = "Dead";
             ServerIp = "127.0.0.1";
             ServerPort = 1500;
@@ -37,7 +38,10 @@ namespace ClientTester
             _mainServerMessenger.SocketEventInfo += _clientMessenger_SocketEventInfo;
             _gameServerMessenger = new GameCom.ClientMessenger(myUdpClient);
             _gameServerMessenger.SocketEventInfo += _clientMessenger_GameServerSocketEventInfo;
+            _mainServerMessenger.RecievedOpenGamesEvent += _mainServerMessenger_RecievedOpenGamesEvent;
         }
+
+        
 
         private readonly DelegateCommand<object> _startGameCommand;
         public DelegateCommand<object> StartGameCommand { get => _startGameCommand; }
@@ -49,8 +53,10 @@ namespace ClientTester
         private readonly DelegateCommand<object> _disconnectMainServerCommand;
         public DelegateCommand<object> DisconnectMainServerCommand { get => _disconnectMainServerCommand; }
 
-        private readonly DelegateCommand<object> _sendMoveCommand;
-        public DelegateCommand<object> SendMoveCommand { get => _sendMoveCommand; }
+        private readonly DelegateCommand<object> _askOpenGamesCommand;
+        public DelegateCommand<object> AskOpenGamesCommand { get => _askOpenGamesCommand; }
+
+        public System.Collections.ObjectModel.ObservableCollection<TanksCommon.SharedObjects.ListOfOpenGames> GameServers { get; private set; }
 
         private string _serverStatus;
         public string ServerStatus
@@ -106,10 +112,10 @@ namespace ClientTester
             mainServerTcpThread.Abort();
         }
 
-        private void SendMove()
+        private void AskOpenGames()
         {
-            _log.Debug("SendMove");
-            this._gameServerMessenger.SendMove(new TanksCommon.SharedObjects.GameMove() { GameId = 0, GunType = 1, LocationX = 2, LocationY = 3 });
+            _log.Debug("Asking for open games");
+            this._gameServerMessenger.RequestOpenGames();
         }
 
         private void GetOpenGames()
@@ -126,6 +132,11 @@ namespace ClientTester
         private void _clientMessenger_GameServerSocketEventInfo(string socketEvent)
         {
             Application.Current.Dispatcher.Invoke(() => GameServerStatus = socketEvent, DispatcherPriority.Background);
+        }
+
+        private void _mainServerMessenger_RecievedOpenGamesEvent(TanksCommon.SharedObjects.ListOfOpenGames games)
+        {
+            Application.Current.Dispatcher.Invoke(() => GameServers.Add(games), DispatcherPriority.Background);
         }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;
