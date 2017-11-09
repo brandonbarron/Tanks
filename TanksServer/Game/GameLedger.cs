@@ -19,11 +19,12 @@ namespace Game
                 if (instance == null)
                 {
                     instance = new GameLedger();
+                    instance.ListOfOpenGames = new List<TanksCommon.SharedObjects.ListOfOpenGames>();
                 }
                 return instance;
             }
         }
 
-        public List<TanksCommon.SharedObjects.ListOfOpenGames> ListOfOpenGames { get; set; }
+        public List<TanksCommon.SharedObjects.ListOfOpenGames> ListOfOpenGames { get; private set; }
     }
 }

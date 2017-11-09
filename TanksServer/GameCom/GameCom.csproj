@@ -57,6 +57,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Game\Game.csproj">
+      <Project>{0b439be5-65d6-47e2-a8b1-2877f536599d}</Project>
+      <Name>Game</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TanksCommon\TanksCommon.csproj">
       <Project>{418e5c7a-259d-4300-9ea6-c61d6fcab1d2}</Project>
       <Name>TanksCommon</Name>
