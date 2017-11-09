@@ -15,10 +15,12 @@ namespace GameCom
         public delegate void SocketEvent(string socketEvent);
         public event SocketEvent SocketEventInfo;
         private readonly UdpSender _udpSender;
+        public bool testConnect;
         public ClientMessenger(UdpClient udpClient) : base(new TcpClient())
         {
             log4net.Config.XmlConfigurator.Configure();
             _udpSender = new UdpSender(udpClient);
+            testConnect = false;
         }
 
         private bool Connect(string ipAddress, int port)
@@ -27,11 +29,13 @@ namespace GameCom
             {
                 _clientSocket.Connect(ipAddress, port);
                 SocketEventInfo("Connected");
+                testConnect = true;
                 return true;
             }
             catch
             {
                 SocketEventInfo("Failed");
+                testConnect = false;
                 return false;
             }
         }
