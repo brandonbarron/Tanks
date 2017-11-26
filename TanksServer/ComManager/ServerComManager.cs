@@ -1,20 +1,15 @@
-﻿using log4net;
+﻿using GameCom;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Sockets;
 using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
 
-namespace GameCom
+namespace ComManager
 {
-    /// <summary>
-    /// This class will be the abstraction to handle multiple game communications
-    /// </summary>
     public class ServerComManager
     {
-        private static readonly ILog _log = LogManager.GetLogger(typeof(ServerComManager));
+        private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(ServerComManager));
         public delegate void SocketEvent(string socketEvent);
         public event SocketEvent SocketEventInfo;
         private readonly UdpReceiver _udpReceiver;
@@ -22,20 +17,21 @@ namespace GameCom
         public event ReceivedDataNewGameSever NewGameServerConnected;
         public delegate void ReceivedDataDelegateForLog(string logString);
         public event ReceivedDataDelegateForLog ReceivedDataLog;
-        Thread _udpThread;
-        public ServerComManager(UdpClient udpClient)
+        System.Threading.Thread _udpThread;
+        public ServerComManager(System.Net.Sockets.UdpClient udpClient)
         {
-            
+
             log4net.Config.XmlConfigurator.Configure();
             _udpReceiver = new UdpReceiver(udpClient);
             _udpReceiver.ReceivedData += _udpReceiver_ReceivedData;
         }
 
-        public void Start(int port, CancellationToken token) {
-            _udpThread = new Thread(() => _udpReceiver.ReceiveStuff(token));
+        public void Start(int port, System.Threading.CancellationToken token)
+        {
+            _udpThread = new System.Threading.Thread(() => _udpReceiver.ReceiveStuff(token));
             _udpThread.Start();
 
-            TcpListener serverSocket = new TcpListener(System.Net.IPAddress.Any, port);
+            System.Net.Sockets.TcpListener serverSocket = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
             SocketEventInfo("Listening");
             System.Net.Sockets.TcpClient clientSocket = default(System.Net.Sockets.TcpClient);
             int clientId = 0;
@@ -44,11 +40,12 @@ namespace GameCom
 
             clientId = 0;
 
-            while (!token.IsCancellationRequested) {
+            while (!token.IsCancellationRequested)
+            {
                 clientId += 1;
                 clientSocket = serverSocket.AcceptTcpClient();
                 _log.Debug($"New TCP Client connected");
-                Thread thread = new Thread(() => StartServerMessenger(clientSocket, clientId, token));
+                System.Threading.Thread thread = new System.Threading.Thread(() => StartServerMessenger(clientSocket, clientId, token));
                 thread.Start();
             }
             clientSocket.Close();
@@ -56,8 +53,10 @@ namespace GameCom
             SocketEventInfo("Closed");
         }
 
-        public void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId, CancellationToken token) {
-            var client = new ServerMessenger(clientSocket, clientId, token);//TODO: this would be the game manager instead
+        public void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId, System.Threading.CancellationToken token)
+        {
+            //var client = new ServerMessenger(clientSocket, clientId, token);//TODO: this would be the game manager instead
+            var Game = new Game.TheGame(clientSocket, clientId, token);
         }
 
         private void _udpReceiver_ReceivedData(byte[] messageBytes)

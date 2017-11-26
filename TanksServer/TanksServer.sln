@@ -17,6 +17,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GameCom", "GameCom\GameCom.
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TanksTest", "TanksCommonTest\TanksTest.csproj", "{A7144A25-849C-49ED-9A3F-B76604F59D74}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComLogic", "ComLogic\ComLogic.csproj", "{11BCFBB0-8D75-4F4D-A3F9-5624D042FC6D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ComManager", "ComManager\ComManager.csproj", "{27F0D148-DD9F-4D43-8C6A-2EF3C1140CE2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +55,14 @@ Global
 		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7144A25-849C-49ED-9A3F-B76604F59D74}.Release|Any CPU.Build.0 = Release|Any CPU
+		{11BCFBB0-8D75-4F4D-A3F9-5624D042FC6D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{11BCFBB0-8D75-4F4D-A3F9-5624D042FC6D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{11BCFBB0-8D75-4F4D-A3F9-5624D042FC6D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{11BCFBB0-8D75-4F4D-A3F9-5624D042FC6D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{27F0D148-DD9F-4D43-8C6A-2EF3C1140CE2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{27F0D148-DD9F-4D43-8C6A-2EF3C1140CE2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{27F0D148-DD9F-4D43-8C6A-2EF3C1140CE2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{27F0D148-DD9F-4D43-8C6A-2EF3C1140CE2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

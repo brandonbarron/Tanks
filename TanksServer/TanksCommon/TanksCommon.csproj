@@ -54,8 +54,10 @@
     <Compile Include="SharedObjects\JoinGame.cs" />
     <Compile Include="SharedObjects\JoinGameAccepted.cs" />
     <Compile Include="SharedObjects\ListOfOpenGames.cs" />
+    <Compile Include="SharedObjects\LogEvent.cs" />
     <Compile Include="SharedObjects\MoveAccepted.cs" />
     <Compile Include="SharedObjects\OpenGame.cs" />
+    <Compile Include="SharedObjects\Ping.cs" />
     <Compile Include="SharedObjects\RequestGames.cs" />
     <Compile Include="SharedObjects\RequestMove.cs" />
   </ItemGroup>

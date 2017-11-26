@@ -11,49 +11,65 @@ namespace GameCom
     abstract public class TheMessenger
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(TheMessenger));
-        protected abstract void HandleRecievedMessage(byte[] messageBytes);
-        protected static TcpClient _clientSocket;
-        protected static NetworkStream _networkStream;
-        protected TheMessenger(TcpClient tcpSocket)
+        private readonly int _clientId;
+
+        public delegate void ReceivedDataDelegateForLog(string logString);
+        public static event ReceivedDataDelegateForLog ReceivedDataLog;
+        public delegate void RecievedMessage(byte[] messageBytes);
+        public event RecievedMessage HandleRecievedMessage;
+        protected TcpClient _clientSocket;
+        protected TheMessenger(TcpClient tcpSocket, int clientId)
         {
+            _clientId = clientId;
             _clientSocket = tcpSocket;
         }
 
         protected bool ReceiveDataFromClient(NetworkStream stream)
         {
-            var buffer = new byte[1024];
+            try
+            {
+                stream.ReadTimeout = 500;
+                var message = stream.ReadStreamMessage();
+                if (message.Length > 0)
+                {
+                    HandleRecievedMessage(message);
+                }
+                return true;
+            }
+            catch (Exception ex)
+            {
+                _log.ErrorFormat("Error while reading data -- {0}", ex.Message);
+            }
+            return false;
+        }
 
+        public void GetStream(System.Threading.CancellationToken token)
+        {
             var keepGoing = true;
-            var stayConnected = true;
-
-            while (stayConnected)
+            while (/*keepGoing &&*/ !token.IsCancellationRequested)
             {
                 try
                 {
-                    int bytesRead = stream.Read(buffer, 0, buffer.Length);
-                    if (bytesRead > 0)
-                    {
-                        _log.Debug("Read data from buffer");
-                        HandleRecievedMessage(buffer);
-                    }
+                    NetworkStream networkStream = _clientSocket.GetStream();
+                    keepGoing = ReceiveDataFromClient(networkStream);
                 }
                 catch
                 {
-                    stayConnected = false;
+                    _log.Debug($"Connection closed by client, id: {_clientId}");
+                    this.CallReceivedDataLog($"Connection closed by client, id: {_clientId}");
+                    keepGoing = false;
                 }
             }
-            return keepGoing;
         }
 
         protected void SendDataToClient(byte[] messageBytes)
         {
             _log.Debug("Sending data to client");
-            //NetworkStream networkStream = _clientSocket.GetStream();
-            _networkStream.Write(messageBytes, 0, messageBytes.Length);
-            _networkStream.Flush();
+            NetworkStream networkStream = _clientSocket.GetStream();
+            networkStream.WriteStreamMessage(messageBytes);
         }
 
-        protected void SendObjectToTcpClient<T>(T theObject, [System.Runtime.CompilerServices.CallerMemberName] string sendingFrom = "") where T : TanksCommon.SharedObjects.IMessage
+        public void SendObjectToTcpClient<T>(T theObject, [System.Runtime.CompilerServices.CallerMemberName] string sendingFrom = "") where T : TanksCommon.SharedObjects.IMessage
         {
             using (var stream = new System.IO.MemoryStream())
             {
@@ -64,6 +80,10 @@ namespace GameCom
             }
         }
 
+        public void CallReceivedDataLog(string message)
+        {
+            ReceivedDataLog(message);
+        }
         
     }
 }

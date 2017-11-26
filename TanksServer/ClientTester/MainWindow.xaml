@@ -16,57 +16,72 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid Grid.Row="0">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="auto"/>
-                <RowDefinition Height="auto"/>
-            </Grid.RowDefinitions>
-            <StackPanel Grid.Row="0" Orientation="Horizontal">
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Label Content="Server IP:"/>
-                    <TextBox Text="{Binding ServerIp, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Label Content="Server Port:"/>
-                    <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-            </StackPanel>
-            <StackPanel Grid.Row="1" Orientation="Horizontal">
-                <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <Label Content="Game Server IP:"/>
-                    <TextBox Text="{Binding GameServerIp, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
-                    <Label Content="Game Server Port:"/>
-                    <TextBox Text="{Binding GameServerPort, UpdateSourceTrigger=PropertyChanged}"/>
-                </StackPanel>
-            </StackPanel>
-        </Grid>
-        <Grid Grid.Row="1">
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="2*"/>
-                <ColumnDefinition Width="6*"/>
+                <ColumnDefinition/>
+                <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <StackPanel Grid.Column="0">
-                <Button Content="Connect Main Server" Command="{Binding ConnectToMainServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
-                <Button Content="Disconnect Main Server" Command="{Binding DisconnectMainServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+            <StackPanel Grid.Column="0" Orientation="Vertical">
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Label Content="Server IP:"/>
+                        <TextBox Text="{Binding ServerIp, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Label Content="Server Port:"/>
+                        <TextBox Text="{Binding ServerPort, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel Grid.Column="0">
+                        <Button Content="Connect Main Server" Command="{Binding ConnectToMainServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                        <Button Content="Disconnect Main Server" Command="{Binding DisconnectMainServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Main Server Connection Status:"/>
+                    <Label Content="{Binding ServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <UniformGrid>
+                    <Button Content="Request Open Game Servers" Command="{Binding AskOpenGameServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                </UniformGrid>
             </StackPanel>
             <StackPanel Grid.Column="1">
-                <Button Content="Start Game" Command="{Binding StartGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
-                <Button Content="Stop Game" Command="{Binding StopGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
-                <Button Content="Request Open games" Command="{Binding AskOpenGamesCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
-            </StackPanel>
-            <StackPanel Grid.Column="2" Orientation="Horizontal">
-                <Label Content="Status:"/>
-                <Label Content="{Binding ServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
+                <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
+                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                        <Label Content="Game Server IP:"/>
+                        <TextBox Text="{Binding GameServerIp, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Label Content="Game Server Port:"/>
+                        <TextBox Text="{Binding GameServerPort, UpdateSourceTrigger=PropertyChanged}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <StackPanel>
+                        <Button Content="Connect Game Server" Command="{Binding ConnectToGameServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                        <Button Content="Disconnect Game Server" Command="{Binding DisconnectFromGameServerCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Label Content="Game Server Connection Status:"/>
+                    <Label Content="{Binding GameServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
+                </StackPanel>
+                <UniformGrid>
+                    <Button Content="Get Open Games" Command="{Binding AskOpenGamesCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    <Button Content="Join Game" Command="{Binding JoinGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    <Button Content="Send Move" Command="{Binding SendMoveCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    <Button Content="Leave game" Command="{Binding LeaveGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                </UniformGrid>
             </StackPanel>
         </Grid>
-        <Grid Grid.Row="2" Margin="0 0 0 0" VerticalAlignment="Top" >
+        <Grid Grid.Row="1" Margin="0 0 0 0" VerticalAlignment="Top" >
             <DataGrid ItemsSource="{Binding GameServers}">
-
             </DataGrid>
         </Grid>
-        
+        <Grid Grid.Row="2" Margin="0 0 0 0" VerticalAlignment="Top" >
+            <DataGrid ItemsSource="{Binding Log}">
+            </DataGrid>
+        </Grid>
         
     </Grid>
 </Controls:MetroWindow>

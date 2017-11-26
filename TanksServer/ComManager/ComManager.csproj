@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{0B439BE5-65D6-47E2-A8B1-2877F536599D}</ProjectGuid>
+    <ProjectGuid>{27F0D148-DD9F-4D43-8C6A-2EF3C1140CE2}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Game</RootNamespace>
-    <AssemblyName>Game</AssemblyName>
+    <RootNamespace>ComManager</RootNamespace>
+    <AssemblyName>ComManager</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -43,22 +43,25 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="TheGame.cs" />
-    <Compile Include="GameLedger.cs" />
+    <Compile Include="ServerComManager.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\GameCom\GameCom.csproj">
-      <Project>{55c4506c-df2f-4f89-85a3-a72494eb312f}</Project>
+      <Project>{55C4506C-DF2F-4F89-85A3-A72494EB312F}</Project>
       <Name>GameCom</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Game\Game.csproj">
+      <Project>{0b439be5-65d6-47e2-a8b1-2877f536599d}</Project>
+      <Name>Game</Name>
     </ProjectReference>
     <ProjectReference Include="..\TanksCommon\TanksCommon.csproj">
       <Project>{418e5c7a-259d-4300-9ea6-c61d6fcab1d2}</Project>
       <Name>TanksCommon</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

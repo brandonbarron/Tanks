@@ -109,6 +109,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\ComLogic\ComLogic.csproj">
+      <Project>{11bcfbb0-8d75-4f4d-a3f9-5624d042fc6d}</Project>
+      <Name>ComLogic</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GameCom\GameCom.csproj">
       <Project>{55c4506c-df2f-4f89-85a3-a72494eb312f}</Project>
       <Name>GameCom</Name>

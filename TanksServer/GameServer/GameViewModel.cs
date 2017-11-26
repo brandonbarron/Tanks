@@ -8,10 +8,9 @@ namespace GameServer
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(GameViewModel));
         private readonly MahApps.Metro.Controls.Dialogs.IDialogCoordinator _dialogCoordinator;
-        private readonly GameCom.ServerComManager _serverComManager;
-        private readonly GameCom.ClientMessenger _clientMessenger;
-        private readonly CancellationTokenSource _cancellationTokenSource;
-        private Thread tcpThread;
+        private readonly ComLogic.PlayerLogicForGameServer _playerLogicForGameServer;
+
+        
         public GameViewModel(MahApps.Metro.Controls.Dialogs.IDialogCoordinator instance)
         {
             this._dialogCoordinator = instance;
@@ -23,17 +22,11 @@ namespace GameServer
             GamePort = 1501;
             ServerAddress = "127.0.0.1";
             ServerPort = 1500;
-            var localEp = new System.Net.IPEndPoint(System.Net.IPAddress.Any, 1501);
-            var myUdpClient = new System.Net.Sockets.UdpClient(localEp);
-            myUdpClient.Client.ReceiveTimeout = 1000;
-            this._serverComManager = new GameCom.ServerComManager(myUdpClient);
-            this._serverComManager.SocketEventInfo += _serverComManager_SocketEventInfo;
-            
-            Log = new System.Collections.ObjectModel.ObservableCollection<LogEvent>();
+
+            _playerLogicForGameServer = new ComLogic.PlayerLogicForGameServer(GamePort);
+            Log = new System.Collections.ObjectModel.ObservableCollection<TanksCommon.SharedObjects.LogEvent>();
             GameCom.ServerMessenger.ReceivedDataLog += ServerMessenger_ReceivedDataLog;
-            _cancellationTokenSource = new CancellationTokenSource();
-            _clientMessenger = new GameCom.ClientMessenger(myUdpClient);
-            _clientMessenger.SocketEventInfo += _clientMessenger_SocketEventInfo;
+            
         }
 
         private readonly DelegateCommand<object> _startServerCommand;
@@ -45,7 +38,7 @@ namespace GameServer
         public DelegateCommand<object> ConnectToServerCommand { get => _connectToServerCommand; }
         private readonly DelegateCommand<object> _disconnectServerCommand;
         public DelegateCommand<object> DisconnectServerCommand { get => _disconnectServerCommand; }
-        public int GamePort { get; set; }
+        public int GamePort { get; set; } //TODO:does this need to change?
         public string ServerAddress { get; set; }
         public int ServerPort { get; set; }
 
@@ -71,46 +64,33 @@ namespace GameServer
             }
         }
 
-        public System.Collections.ObjectModel.ObservableCollection<LogEvent> Log { get; private set; }
+        public System.Collections.ObjectModel.ObservableCollection<TanksCommon.SharedObjects.LogEvent> Log { get; private set; }
 
         private void StartServer()
         {
-            _log.Debug("starting game server");
-            Thread t = new Thread(() => this._serverComManager.Start(GamePort, _cancellationTokenSource.Token));
-            t.Start();
+            _playerLogicForGameServer.SetListeningPort(GamePort);
+            _playerLogicForGameServer.StartServer();
         }
 
         private void StopServer()
         {
-            _cancellationTokenSource.Cancel();
+            _playerLogicForGameServer.StopServer();
         }
 
         private void ConnectToMainServer()
         {
             _log.Debug("Connecting to Main Server");
-            var gameReg = new TanksCommon.SharedObjects.GameServerRegister()
-            {
-                OpenGames = new System.Collections.Generic.List<TanksCommon.SharedObjects.OpenGame>()
-                {
-                    new TanksCommon.SharedObjects.OpenGame()
-                    {
-                        GameId = 1, MapId = 1, NumberOfPlayers = 5, PlayerCapacity = 3
-                    }
-                }
-            };
-            tcpThread = new Thread(() => this._clientMessenger.ConnectToMainServerAndRegister(ServerAddress, ServerPort, gameReg));
-            tcpThread.Start();
+            _playerLogicForGameServer.ConnectToMainServer(ServerAddress, ServerPort);
         }
 
         private void DisconnectFromMainServer()
         {
-            this._clientMessenger.StopGame();
-            tcpThread.Abort();
+            _playerLogicForGameServer.DisconnectFromMainServer();
         }
 
         private void ServerMessenger_ReceivedDataLog(string logString)
         {
-            Application.Current.Dispatcher.Invoke(() => Log.Add(new LogEvent(logString)), DispatcherPriority.Background);
+            Application.Current.Dispatcher.Invoke(() => Log.Add(new TanksCommon.SharedObjects.LogEvent(logString)), DispatcherPriority.Background);
         }
 
         private void _serverComManager_SocketEventInfo(string socketEvent)
