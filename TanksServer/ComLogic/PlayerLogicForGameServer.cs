@@ -18,6 +18,7 @@ namespace ComLogic
 
         public delegate void SocketEvent(string socketEvent);
         public event SocketEvent SocketEventInfo;
+        public event SocketEvent SocketMainServerEventInfo;
         public delegate void ReceivedDataDelegateForLog(string logString);
         public event ReceivedDataDelegateForLog ReceivedDataLog;
 
@@ -32,6 +33,12 @@ namespace ComLogic
             _clientMessenger = new GameCom.ClientMessenger(myUdpClient, _cancellationTokenSource.Token);
             _clientMessenger.SocketEventInfo += _serverComManager_SocketEventInfo;
             _serverComManager.ReceivedDataLog += _serverComManager_ReceivedDataLog;
+            _serverComManager.SocketEventInfo += _serverComManager_SocketEventInfo1;
+        }
+
+        private void _serverComManager_SocketEventInfo1(string socketEvent)
+        {
+            SocketMainServerEventInfo?.Invoke(socketEvent);
         }
 
         private void _serverComManager_ReceivedDataLog(string logString)
@@ -74,7 +81,7 @@ namespace ComLogic
                     }
                 }
             };
-            tcpThread = new System.Threading.Thread(() => this._clientMessenger.ConnectToMainServerAndRegister(serverAddress, serverPort, gameReg));
+            tcpThread = new System.Threading.Thread(() => this.ConnectToMainServerAndRegister(serverAddress, serverPort, gameReg));
             tcpThread.Start();
         }
 
@@ -84,7 +91,12 @@ namespace ComLogic
             tcpThread.Abort();
         }
 
-
+        public void ConnectToMainServerAndRegister(string ipAddress, int port, TanksCommon.SharedObjects.GameServerRegister gameServerRegister)
+        {
+            _clientMessenger.AddUpdPeer(ipAddress, port);
+            _log.Debug($"Sending GameReg: {gameServerRegister}");
+            _clientMessenger.SendObjectToUdpPeers(gameServerRegister);
+        }
 
     }
 }

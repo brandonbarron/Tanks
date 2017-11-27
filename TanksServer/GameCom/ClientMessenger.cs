@@ -20,6 +20,7 @@ namespace GameCom
         public bool testConnect;
         public ClientMessenger(UdpClient udpClient, System.Threading.CancellationToken token) : base(new TcpClient(), 123)
         {
+            _cancelToken = token;
             log4net.Config.XmlConfigurator.Configure();
             _udpSender = new UdpSender(udpClient);
             testConnect = false;
@@ -30,12 +31,10 @@ namespace GameCom
             try
             {
                 _clientSocket.Connect(ipAddress, port);
-                //NetworkStream networkStream = _clientSocket.GetStream();
                 SocketEventInfo?.Invoke("Connected");
                 testConnect = true;
                 System.Threading.Thread thread = new System.Threading.Thread(() => GetStream(_cancelToken));
                 thread.Start();
-                //GetStream();
                 return true;
             }
             catch
@@ -45,31 +44,13 @@ namespace GameCom
                 return false;
             }
         }
-
-        //public void GetStream()
-        //{
-        //    var keepGoing = true;
-        //    NetworkStream networkStream = _clientSocket.GetStream();
-        //    while (/*keepGoing*/ true)
-        //    {
-        //        try
-        //        {
-        //            keepGoing = ReceiveDataFromClient(networkStream);
-        //        }
-        //        catch
-        //        {
-        //            _log.Debug($"Connection closed by client");
-        //            keepGoing = false;
-        //        }
-        //    }
-        //}
        
         public void AddUpdPeer(string ipAddress, int port)
         {
             _udpSender.AddPeer(ipAddress, port);
         }
 
-        public void SendObjectToPeers<T>(T theObject) where T : TanksCommon.SharedObjects.IMessage
+        public void SendObjectToUdpPeers<T>(T theObject) where T : TanksCommon.SharedObjects.IMessage
         {
             _udpSender.SendObjectToPeers(theObject);
         }
@@ -80,12 +61,5 @@ namespace GameCom
             _clientSocket.Dispose();
         }
 
-        //This is for the GameServer at the moment, we can move this to a ComLogic class 
-        public void ConnectToMainServerAndRegister(string ipAddress, int port, TanksCommon.SharedObjects.GameServerRegister gameServerRegister)
-        {
-            _udpSender.AddPeer(ipAddress, port);
-            _log.Debug($"Sending GameReg: {gameServerRegister}");
-            this._udpSender.SendObjectToPeers(gameServerRegister);
-        }
     }
 }

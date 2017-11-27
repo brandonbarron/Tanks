@@ -26,8 +26,11 @@ namespace GameServer
             _playerLogicForGameServer = new ComLogic.PlayerLogicForGameServer(GamePort);
             Log = new System.Collections.ObjectModel.ObservableCollection<TanksCommon.SharedObjects.LogEvent>();
             GameCom.ServerMessenger.ReceivedDataLog += ServerMessenger_ReceivedDataLog;
-            
+            _playerLogicForGameServer.SocketEventInfo += _playerLogicForGameServer_SocketEventInfo;
+            _playerLogicForGameServer.SocketMainServerEventInfo += _playerLogicForGameServer_SocketMainServerEventInfo;
         }
+
+        
 
         private readonly DelegateCommand<object> _startServerCommand;
         public DelegateCommand<object> StartServerCommand { get => _startServerCommand; }
@@ -93,14 +96,14 @@ namespace GameServer
             Application.Current.Dispatcher.Invoke(() => Log.Add(new TanksCommon.SharedObjects.LogEvent(logString)), DispatcherPriority.Background);
         }
 
-        private void _serverComManager_SocketEventInfo(string socketEvent)
-        {
-            Application.Current.Dispatcher.Invoke(() => ServerStatus = socketEvent, DispatcherPriority.Background);
-        }
-
-        private void _clientMessenger_SocketEventInfo(string socketEvent)
+        private void _playerLogicForGameServer_SocketEventInfo(string socketEvent)
         {
             Application.Current.Dispatcher.Invoke(() => GameServerStatus = socketEvent, DispatcherPriority.Background);
+        }
+
+        private void _playerLogicForGameServer_SocketMainServerEventInfo(string socketEvent)
+        {
+            Application.Current.Dispatcher.Invoke(() => ServerStatus = socketEvent, DispatcherPriority.Background);
         }
 
         public event System.ComponentModel.PropertyChangedEventHandler PropertyChanged;

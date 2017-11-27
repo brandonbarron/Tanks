@@ -82,7 +82,7 @@ namespace ComLogic
         {
             _mainServerMessenger.AddUpdPeer(ipAddress, port);
             _log.Debug($"Sending GameReg: {gameServerRegister}");
-            this._mainServerMessenger.SendObjectToPeers(gameServerRegister);
+            this._mainServerMessenger.SendObjectToUdpPeers(gameServerRegister);
         }
 
         private void SendPing()
