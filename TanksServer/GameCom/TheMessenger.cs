@@ -30,7 +30,7 @@ namespace GameCom
             {
                 stream.ReadTimeout = 500;
                 var message = stream.ReadStreamMessage();
-                if (message.Length > 0)
+                if (message != null && message.Length > 0)
                 {
                     HandleRecievedMessage(message);
                 }

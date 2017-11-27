@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientMessenger.cs" />
+    <Compile Include="Hash.cs" />
     <Compile Include="Messenger.cs" />
     <Compile Include="NetworkStreamExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

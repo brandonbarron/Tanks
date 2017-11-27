@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 
 namespace GameCom
 {
+    //This is based on a sample provided by Dr. Clyde
     public static class NetworkStreamExtensions
     {
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(NetworkStreamExtensions));
@@ -26,11 +27,13 @@ namespace GameCom
             {
                 
                 byte[] lengthBytes = BitConverter.GetBytes(System.Net.IPAddress.HostToNetworkOrder(messageBytes.Length));
+                byte[] hashBytes = Hash.HashData(messageBytes);
                 if (stream.CanWrite)
                 {
                     try
                     {
                         stream.Write(lengthBytes, 0, lengthBytes.Length);
+                        stream.Write(hashBytes, 0, hashBytes.Length);
                         stream.Write(messageBytes, 0, messageBytes.Length);
                         result = true;
                         _log.Debug("Write complete");
@@ -53,21 +56,33 @@ namespace GameCom
             byte[] result = null;
 
             int bytesRead = 4;
-            byte[] bytes = new byte[4];
-            bytes = ReadBytes(stream, bytesRead);
+            byte[] lengthBytes = new byte[4];
+            lengthBytes = ReadBytes(stream, bytesRead);
 
-            _log.DebugFormat("Length bytes read = {0}", bytes.Length);
+            _log.DebugFormat("Length bytes read = {0}", lengthBytes.Length);
 
-            if (bytesRead == bytes.Length)
+            byte[] hashBytes = ReadBytes(stream, 32);
+
+
+            if (bytesRead == lengthBytes.Length)
             {
-                int messageLength = System.Net.IPAddress.NetworkToHostOrder(BitConverter.ToInt32(bytes, 0));
+                int messageLength = System.Net.IPAddress.NetworkToHostOrder(BitConverter.ToInt32(lengthBytes, 0));
                 _log.DebugFormat("Incoming message will be {0} bytes", messageLength);
 
-                bytes = ReadBytes(stream, messageLength);
-                _log.DebugFormat("Message bytes read = {0}", bytes.Length);
+                var resultBytes = ReadBytes(stream, messageLength);
+                _log.DebugFormat("Message bytes read = {0}", resultBytes.Length);
 
-                if (messageLength == bytes.Length)
-                    result = bytes;
+                if (messageLength == resultBytes.Length)
+                    result = resultBytes;
+            }
+
+            if (hashBytes != null && hashBytes.Length > 0 && result != null && result.Length > 0)
+            {
+                if (!Hash.HashAndCompare(result, hashBytes))
+                {
+                    _log.Error("Hash not equal");
+                    //TODO: do something to raise awarness
+                }
             }
             return result;
         }
