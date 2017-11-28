@@ -32,6 +32,7 @@ namespace GameCom
                 var message = stream.ReadStreamMessage();
                 if (message != null && message.Length > 0)
                 {
+                    AcknowledgeMessage((byte[])message.Clone());
                     HandleRecievedMessage(message);
                 }
                 return true;
@@ -46,7 +47,7 @@ namespace GameCom
         public void GetStream(System.Threading.CancellationToken token)
         {
             var keepGoing = true;
-            while (/*keepGoing &&*/ !token.IsCancellationRequested)
+            while (keepGoing && !token.IsCancellationRequested)
             {
                 try
                 {
@@ -71,6 +72,10 @@ namespace GameCom
 
         public void SendObjectToTcpClient<T>(T theObject, [System.Runtime.CompilerServices.CallerMemberName] string sendingFrom = "") where T : TanksCommon.SharedObjects.IMessage
         {
+            if (theObject.Id != 99)
+            {
+                theObject.MessageId = Hash.GetRandomNumber();
+            }
             using (var stream = new System.IO.MemoryStream())
             {
                 _log.Debug($"Sending object from: {sendingFrom}");
@@ -85,5 +90,14 @@ namespace GameCom
             ReceivedDataLog(message);
         }
         
+        private void AcknowledgeMessage(byte[] messageBytes)
+        {
+            var stream = new System.IO.MemoryStream(messageBytes);
+            var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+            if (message.Id != 99)
+            {
+                SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
+            }
+        }
     }
 }

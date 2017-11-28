@@ -4,6 +4,8 @@ namespace GameCom
 {
     public static class Hash
     {
+        private static readonly System.Random getrandom = new System.Random();
+        private static readonly object syncLock = new object();
         //https://stackoverflow.com/questions/12416249/hashing-a-string-with-sha256
         public static byte[] HashData(byte[] dataToHash)
         {
@@ -22,5 +24,13 @@ namespace GameCom
             return newHash.SequenceEqual(toCompareHash);
         }
 
+        //https://stackoverflow.com/questions/2706500/how-do-i-generate-a-random-int-number-in-c
+        public static int GetRandomNumber()
+        {
+            lock (syncLock)
+            { // synchronize
+                return getrandom.Next(0, int.MaxValue);
+            }
+        }
     }
 }

@@ -61,20 +61,25 @@ namespace Game
                     break;
                 case 7:
                     var gameMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameMove>(stream);
-                    _log.Debug($"Received gameMove: {gameMove}");
-                    _serverMessenger.CallReceivedDataLog($"Received gameMove: {gameMove}");
+                    _log.Debug($"Received gameMove {gameMove.MessageId}: {gameMove}");
+                    _serverMessenger.CallReceivedDataLog($"Received gameMove {gameMove.MessageId}: {gameMove}");
                     break;
                 case 8:
                     var listOfOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.ListOfOpenGames>(stream);
-                    _log.Debug($"Received listOfOpenGames: {listOfOpenGames}");
-                    _serverMessenger.CallReceivedDataLog($"Received listOfOpenGames: {listOfOpenGames}");
+                    _log.Debug($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
+                    _serverMessenger.CallReceivedDataLog($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
                     AddGamesToLedger(listOfOpenGames);
                     break;
                 case 9:
                     var requestOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.RequestGames>(stream);
-                    _log.Debug($"Received requestOpenGames: {requestOpenGames}");
-                    _serverMessenger.CallReceivedDataLog($"Received requestOpenGames: {requestOpenGames}");
+                    _log.Debug($"Received requestOpenGames {requestOpenGames.MessageId}: {requestOpenGames}");
+                    _serverMessenger.CallReceivedDataLog($"Received requestOpenGames {requestOpenGames.MessageId}: {requestOpenGames}");
                     SendOpenGamesToPlayer();
+                    break;
+                case 99:
+                    var ack = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+                    _log.Debug($"Received DataReceived: {ack.MessageId}");
+                    _serverMessenger.CallReceivedDataLog($"Received requestOpenGames: {ack.MessageId}");
                     break;
             }
         }

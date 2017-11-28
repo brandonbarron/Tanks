@@ -58,6 +58,10 @@ namespace GameCom
             int bytesRead = 4;
             byte[] lengthBytes = new byte[4];
             lengthBytes = ReadBytes(stream, bytesRead);
+            if(lengthBytes == null || lengthBytes.Length == 0)
+            {
+                return null;
+            }
 
             _log.DebugFormat("Length bytes read = {0}", lengthBytes.Length);
 

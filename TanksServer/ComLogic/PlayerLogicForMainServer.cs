@@ -139,14 +139,19 @@ namespace ComLogic
                     break;
                 case 7:
                     var gameMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameMove>(stream);
-                    _log.Debug($"Received gameMove: {gameMove}");
-                    ReceivedDataLog($"Received gameMove: {gameMove}");
+                    _log.Debug($"Received gameMove {gameMove.MessageId}: {gameMove}");
+                    ReceivedDataLog($"Received gameMove {gameMove.MessageId}: {gameMove}");
                     break;
                 case 8:
                     var listOfOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.ListOfOpenGames>(stream);
-                    _log.Debug($"Received listOfOpenGames: {listOfOpenGames}");
-                    ReceivedDataLog($"Received listOfOpenGames: {listOfOpenGames}");
+                    _log.Debug($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
+                    ReceivedDataLog($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
                     RecievedOpenGamesEvent(listOfOpenGames);
+                    break;
+                case 99:
+                    var ack = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+                    _log.Debug($"Received DataReceived: {ack.MessageId}");
+                    ReceivedDataLog($"Received DataReceived: {ack.MessageId}");
                     break;
             }
         }

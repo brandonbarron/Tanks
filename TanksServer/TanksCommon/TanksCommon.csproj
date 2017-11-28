@@ -46,6 +46,7 @@
     <Compile Include="MessageDecoder.cs" />
     <Compile Include="MessageEncoder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="SharedObjects\DataReceived.cs" />
     <Compile Include="SharedObjects\GameServerRegister.cs" />
     <Compile Include="SharedObjects\GameMove.cs" />
     <Compile Include="SharedObjects\GameStatus.cs" />

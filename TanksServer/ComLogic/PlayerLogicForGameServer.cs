@@ -24,6 +24,7 @@ namespace ComLogic
 
         public PlayerLogicForGameServer(int listenPort)
         {
+            AddGames();//TODO: for debug
             var localEp = new System.Net.IPEndPoint(System.Net.IPAddress.Any, listenPort);
             var myUdpClient = new System.Net.Sockets.UdpClient(localEp);
             myUdpClient.Client.ReceiveTimeout = 1000;
@@ -32,6 +33,7 @@ namespace ComLogic
             _cancellationTokenSource = new System.Threading.CancellationTokenSource();
             _clientMessenger = new GameCom.ClientMessenger(myUdpClient, _cancellationTokenSource.Token);
             _clientMessenger.SocketEventInfo += _serverComManager_SocketEventInfo;
+            _clientMessenger.HandleRecievedMessage += HandleRecievedMessage;
             _serverComManager.ReceivedDataLog += _serverComManager_ReceivedDataLog;
             _serverComManager.SocketEventInfo += _serverComManager_SocketEventInfo1;
         }
@@ -49,6 +51,21 @@ namespace ComLogic
         private void _serverComManager_SocketEventInfo(string socketEvent)
         {
             SocketEventInfo?.Invoke(socketEvent);
+        }
+
+        private void AddGames()
+        {
+            var games = new TanksCommon.SharedObjects.ListOfOpenGames()
+            {
+                OpenGames = new List<TanksCommon.SharedObjects.OpenGame>()
+                {
+                    new TanksCommon.SharedObjects.OpenGame()
+                    {
+                        GameId = 1, MapId = 1, NumberOfPlayers = 5, PlayerCapacity = 3
+                    }
+                }
+            };
+            Game.GameLedger.Instance.ListOfOpenGames.Add(games);
         }
 
         public void SetListeningPort(int port)
@@ -97,6 +114,63 @@ namespace ComLogic
             _log.Debug($"Sending GameReg: {gameServerRegister}");
             _clientMessenger.SendObjectToUdpPeers(gameServerRegister);
         }
-
+        private void HandleRecievedMessage(byte[] messageBytes)
+        {
+            var stream = new System.IO.MemoryStream(messageBytes);
+            short messageType = TanksCommon.MessageDecoder.DecodeMessageType(stream);
+            switch (messageType)
+            {
+                case 0:
+                    var ping = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.Ping>(stream);
+                    _log.Debug($"Received Ping: {ping}");
+                    ReceivedDataLog($"Received ping: {ping}");
+                    break;
+                case 1:
+                    var gameStatus = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameStatus>(stream);
+                    _log.Debug($"Received game status: {gameStatus}");
+                    ReceivedDataLog($"Received game status: {gameStatus}");
+                    break;
+                case 2:
+                    var invalidMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.InvalidMove>(stream);
+                    _log.Debug($"Received invalidMove: {invalidMove}");
+                    ReceivedDataLog($"Received invalidMove: {invalidMove}");
+                    break;
+                case 3:
+                    var joinGame = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.JoinGame>(stream);
+                    _log.Debug($"Received joinGame: {joinGame}");
+                    ReceivedDataLog($"Received joinGame: {joinGame}");
+                    break;
+                case 4:
+                    var joinGameAccepted = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.JoinGameAccepted>(stream);
+                    _log.Debug($"Received joinGameAccepted: {joinGameAccepted}");
+                    ReceivedDataLog($"Received joinGameAccepted: {joinGameAccepted}");
+                    break;
+                case 5:
+                    var moveAccepted = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.MoveAccepted>(stream);
+                    _log.Debug($"Received moveAccepted: {moveAccepted}");
+                    ReceivedDataLog($"Received moveAccepted: {moveAccepted}");
+                    break;
+                case 6:
+                    var requestMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.RequestMove>(stream);
+                    _log.Debug($"Received requestMove: {requestMove}");
+                    ReceivedDataLog($"Received requestMove: {requestMove}");
+                    break;
+                case 7:
+                    var gameMove = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameMove>(stream);
+                    _log.Debug($"Received gameMove {gameMove.MessageId}: {gameMove}");
+                    ReceivedDataLog($"Received gameMove {gameMove.MessageId}: {gameMove}");
+                    break;
+                case 8:
+                    var listOfOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.ListOfOpenGames>(stream);
+                    _log.Debug($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
+                    ReceivedDataLog($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
+                    break;
+                case 99:
+                    var ack = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+                    _log.Debug($"Received DataReceived: {ack.MessageId}");
+                    ReceivedDataLog($"Received DataReceived: {ack.MessageId}");
+                    break;
+            }
+        }
     }
 }
