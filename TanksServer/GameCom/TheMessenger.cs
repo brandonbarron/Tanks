@@ -32,8 +32,12 @@ namespace GameCom
                 var message = stream.ReadStreamMessage();
                 if (message != null && message.Length > 0)
                 {
-                    AcknowledgeMessage((byte[])message.Clone());
-                    HandleRecievedMessage(message);
+                    if (!Hash.HashAndCompare(message.Skip(32).ToArray(), message.Take(32).ToArray()))
+                    {
+                        _log.Error("hash not equal");
+                    }
+                    AcknowledgeMessage((byte[])message.Skip(32).ToArray().Clone());
+                    HandleRecievedMessage(message.Skip(32).ToArray());
                 }
                 return true;
             }
@@ -81,7 +85,12 @@ namespace GameCom
                 _log.Debug($"Sending object from: {sendingFrom}");
                 var messageStream = TanksCommon.MessageEncoder.EncodeMessage(stream, theObject);
                 messageStream.Seek(0, System.IO.SeekOrigin.Begin);
-                this.SendDataToClient(messageStream.ToArray());
+                var messageBytes = messageStream.ToArray();
+                var hash = Hash.HashData(messageBytes);
+                List<byte> byteList = new List<byte>(hash);
+                byteList.AddRange(messageBytes);
+
+                this.SendDataToClient(byteList.ToArray());
             }
         }
 

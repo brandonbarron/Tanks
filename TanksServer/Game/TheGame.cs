@@ -79,7 +79,7 @@ namespace Game
                 case 99:
                     var ack = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
                     _log.Debug($"Received DataReceived: {ack.MessageId}");
-                    _serverMessenger.CallReceivedDataLog($"Received requestOpenGames: {ack.MessageId}");
+                    _serverMessenger.CallReceivedDataLog($"Received DataReceived: {ack.MessageId}");
                     break;
             }
         }

@@ -27,13 +27,13 @@ namespace GameCom
             {
                 
                 byte[] lengthBytes = BitConverter.GetBytes(System.Net.IPAddress.HostToNetworkOrder(messageBytes.Length));
-                byte[] hashBytes = Hash.HashData(messageBytes);
+                //byte[] hashBytes = Hash.HashData(messageBytes);
                 if (stream.CanWrite)
                 {
                     try
                     {
                         stream.Write(lengthBytes, 0, lengthBytes.Length);
-                        stream.Write(hashBytes, 0, hashBytes.Length);
+                        //stream.Write(hashBytes, 0, hashBytes.Length);
                         stream.Write(messageBytes, 0, messageBytes.Length);
                         result = true;
                         _log.Debug("Write complete");
@@ -65,7 +65,7 @@ namespace GameCom
 
             _log.DebugFormat("Length bytes read = {0}", lengthBytes.Length);
 
-            byte[] hashBytes = ReadBytes(stream, 32);
+            //byte[] hashBytes = ReadBytes(stream, 32);
 
 
             if (bytesRead == lengthBytes.Length)
@@ -80,14 +80,14 @@ namespace GameCom
                     result = resultBytes;
             }
 
-            if (hashBytes != null && hashBytes.Length > 0 && result != null && result.Length > 0)
+            /*if (hashBytes != null && hashBytes.Length > 0 && result != null && result.Length > 0)
             {
                 if (!Hash.HashAndCompare(result, hashBytes))
                 {
                     _log.Error("Hash not equal");
                     //TODO: do something to raise awarness
                 }
-            }
+            }*/
             return result;
         }
 
