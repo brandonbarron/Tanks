@@ -18,10 +18,15 @@ namespace GameCom
         public delegate void RecievedMessage(byte[] messageBytes);
         public event RecievedMessage HandleRecievedMessage;
         protected TcpClient _clientSocket;
+        private int _mesageId;
+        private System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>> messageQueue;
         protected TheMessenger(TcpClient tcpSocket, int clientId)
         {
             _clientId = clientId;
             _clientSocket = tcpSocket;
+            _mesageId = 0;
+            messageQueue = new System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>>();
+            //TODO: start new thread to periodically check the queue and resend messages if nessisary
         }
 
         protected bool ReceiveDataFromClient(NetworkStream stream)
@@ -35,6 +40,7 @@ namespace GameCom
                     if (!Hash.HashAndCompare(message.Skip(32).ToArray(), message.Take(32).ToArray()))
                     {
                         _log.Error("hash not equal");
+                        HandleHashFailed(message.Skip(32).ToArray());
                     }
                     AcknowledgeMessage((byte[])message.Skip(32).ToArray().Clone());
                     HandleRecievedMessage(message.Skip(32).ToArray());
@@ -76,9 +82,15 @@ namespace GameCom
 
         public void SendObjectToTcpClient<T>(T theObject, [System.Runtime.CompilerServices.CallerMemberName] string sendingFrom = "") where T : TanksCommon.SharedObjects.IMessage
         {
+            //TODO: add message to message queeue
+            SendObjectToTcpClient_Imp(theObject, sendingFrom);
+        }
+
+        private void SendObjectToTcpClient_Imp<T>(T theObject, string sendingFrom ) where T : TanksCommon.SharedObjects.IMessage
+        {
             if (theObject.Id != 99)
             {
-                theObject.MessageId = Hash.GetRandomNumber();
+                theObject.MessageId = _mesageId++;
             }
             using (var stream = new System.IO.MemoryStream())
             {
@@ -101,12 +113,23 @@ namespace GameCom
         
         private void AcknowledgeMessage(byte[] messageBytes)
         {
+            //TODO: remove message from queue, marking it complete
             var stream = new System.IO.MemoryStream(messageBytes);
             var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
             if (message.Id != 99)
             {
                 SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
             }
+        }
+
+        private void HandleHashFailed(byte[] messageBytes)
+        {
+            //TODO: retry message sending message when hashing failed
+        }
+
+        private void CheckQueueForUnAcknowledMessages()
+        {
+            //TODO: this will be running in a different thread checking the queue periodically
         }
     }
 }
