@@ -64,6 +64,14 @@
       <Project>{f889a498-1e4c-41d2-be37-31f95117eaa8}</Project>
       <Name>ClientTester</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ComLogic\ComLogic.csproj">
+      <Project>{11bcfbb0-8d75-4f4d-a3f9-5624d042fc6d}</Project>
+      <Name>ComLogic</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\ComManager\ComManager.csproj">
+      <Project>{27f0d148-dd9f-4d43-8c6a-2ef3c1140ce2}</Project>
+      <Name>ComManager</Name>
+    </ProjectReference>
     <ProjectReference Include="..\GameCom\GameCom.csproj">
       <Project>{55c4506c-df2f-4f89-85a3-a72494eb312f}</Project>
       <Name>GameCom</Name>

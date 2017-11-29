@@ -32,7 +32,7 @@ namespace ComManager
             _udpThread.Start();
 
             System.Net.Sockets.TcpListener serverSocket = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
-            SocketEventInfo("Listening");
+            SocketEventInfo?.Invoke("Listening");
             System.Net.Sockets.TcpClient clientSocket = default(System.Net.Sockets.TcpClient);
             int clientId = 0;
 
@@ -50,7 +50,7 @@ namespace ComManager
             }
             clientSocket.Close();
             serverSocket.Stop();
-            SocketEventInfo("Closed");
+            SocketEventInfo?.Invoke("Closed");
         }
 
         public void StartServerMessenger(System.Net.Sockets.TcpClient clientSocket, int clientId, System.Threading.CancellationToken token)
