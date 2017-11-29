@@ -56,6 +56,7 @@
     <Compile Include="SharedObjects\JoinGameAccepted.cs" />
     <Compile Include="SharedObjects\ListOfOpenGames.cs" />
     <Compile Include="SharedObjects\LogEvent.cs" />
+    <Compile Include="SharedObjects\MessageResend.cs" />
     <Compile Include="SharedObjects\MoveAccepted.cs" />
     <Compile Include="SharedObjects\OpenGame.cs" />
     <Compile Include="SharedObjects\Ping.cs" />

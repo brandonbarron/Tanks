@@ -12,7 +12,7 @@ namespace GameCom
     public class ClientMessenger : TheMessenger
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(ClientMessenger));
-        private readonly System.Threading.CancellationToken _cancelToken;
+        
         public delegate void SocketEvent(string socketEvent);
         public event SocketEvent SocketEventInfo;
 

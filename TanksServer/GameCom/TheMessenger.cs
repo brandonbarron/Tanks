@@ -17,16 +17,27 @@ namespace GameCom
         public static event ReceivedDataDelegateForLog ReceivedDataLog;
         public delegate void RecievedMessage(byte[] messageBytes);
         public event RecievedMessage HandleRecievedMessage;
+        public delegate void ClientNotResponding();
+        public event ClientNotResponding ClientNotRespondingEvent;
         protected TcpClient _clientSocket;
+        protected System.Threading.CancellationToken _cancelToken;
         private int _mesageId;
-        private System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>> messageQueue;
+        private int _nextReceivedMessageId;
+        private System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>> _messageQueue;
+        private System.Collections.Concurrent.ConcurrentDictionary<int, TanksCommon.SharedObjects.IMessage> _messageHistory;
+        private System.Collections.Concurrent.ConcurrentDictionary<int, byte[]> _incommingMessages;
         protected TheMessenger(TcpClient tcpSocket, int clientId)
         {
             _clientId = clientId;
             _clientSocket = tcpSocket;
             _mesageId = 0;
-            messageQueue = new System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>>();
-            //TODO: start new thread to periodically check the queue and resend messages if nessisary
+            _nextReceivedMessageId = 0;
+            _messageQueue = new System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>>();
+            _messageHistory = new System.Collections.Concurrent.ConcurrentDictionary<int, TanksCommon.SharedObjects.IMessage>();
+            _incommingMessages = new System.Collections.Concurrent.ConcurrentDictionary<int, byte[]>();
+            //start new thread to periodically check the queue and resend messages if nessisary
+            System.Threading.Thread t = new System.Threading.Thread(() => CheckQueueForUnAcknowledMessages());
+            t.Start();
         }
 
         protected bool ReceiveDataFromClient(NetworkStream stream)
@@ -41,9 +52,11 @@ namespace GameCom
                     {
                         _log.Error("hash not equal");
                         HandleHashFailed(message.Skip(32).ToArray());
+                        return true;
                     }
                     AcknowledgeMessage((byte[])message.Skip(32).ToArray().Clone());
-                    HandleRecievedMessage(message.Skip(32).ToArray());
+                    //check if right order
+                    EnsureProperMessageOrder(message.Skip(32).ToArray());
                 }
                 return true;
             }
@@ -56,6 +69,7 @@ namespace GameCom
 
         public void GetStream(System.Threading.CancellationToken token)
         {
+            this._cancelToken = token;
             var keepGoing = true;
             while (keepGoing && !token.IsCancellationRequested)
             {
@@ -82,16 +96,22 @@ namespace GameCom
 
         public void SendObjectToTcpClient<T>(T theObject, [System.Runtime.CompilerServices.CallerMemberName] string sendingFrom = "") where T : TanksCommon.SharedObjects.IMessage
         {
-            //TODO: add message to message queeue
+            if(theObject == null)
+            {
+                _log.Error("Object to send is null");
+                throw new ArgumentException("Object to send cannot be null", "theObject");
+            }
+            if (theObject.Id != 99) //ignore keeping track of the ack 
+            {
+                theObject.MessageId = _mesageId++;
+                _messageHistory.TryAdd(theObject.MessageId, theObject);
+                _messageQueue.Enqueue(new MessageInfo<TanksCommon.SharedObjects.IMessage>(theObject));
+            }
             SendObjectToTcpClient_Imp(theObject, sendingFrom);
         }
 
         private void SendObjectToTcpClient_Imp<T>(T theObject, string sendingFrom ) where T : TanksCommon.SharedObjects.IMessage
         {
-            if (theObject.Id != 99)
-            {
-                theObject.MessageId = _mesageId++;
-            }
             using (var stream = new System.IO.MemoryStream())
             {
                 _log.Debug($"Sending object from: {sendingFrom}");
@@ -110,26 +130,97 @@ namespace GameCom
         {
             ReceivedDataLog(message);
         }
-        
+
         private void AcknowledgeMessage(byte[] messageBytes)
         {
-            //TODO: remove message from queue, marking it complete
             var stream = new System.IO.MemoryStream(messageBytes);
             var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
-            if (message.Id != 99)
+            if (message.Id == 900)
+            {
+                //resend message
+                SendObjectToTcpClient(_messageHistory[message.MessageId]);
+            }
+            else if (message.Id != 99)
             {
                 SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
+                
+            }
+            else 
+            {
+                //remove message from queue, marking it complete
+                var top = new MessageInfo<TanksCommon.SharedObjects.IMessage>();
+                if (_messageQueue.TryPeek(out top))
+                {
+                    if (top.OriginalMessage.MessageId == message.MessageId)
+                    {
+                        //success remove from queue
+                        _messageQueue.TryDequeue(out top);
+                    }
+                }
+                else
+                {
+                    _log.Error("Message not found in queue");
+                }
             }
         }
 
         private void HandleHashFailed(byte[] messageBytes)
         {
-            //TODO: retry message sending message when hashing failed
+            //retry message sending message when hashing failed
+            var stream = new System.IO.MemoryStream(messageBytes);
+            var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+            SendObjectToTcpClient_Imp(new TanksCommon.SharedObjects.MessageResend() { MessageId = message.MessageId }, "HandleHashFailed");//bypass message id and queue logic
         }
 
         private void CheckQueueForUnAcknowledMessages()
         {
-            //TODO: this will be running in a different thread checking the queue periodically
+            //this will be running in a different thread checking the queue periodically
+            while (!this._cancelToken.IsCancellationRequested)
+            {
+                System.Threading.Thread.Sleep(1500);
+                if(!_messageQueue.IsEmpty)
+                {
+                    var top = new MessageInfo<TanksCommon.SharedObjects.IMessage>();
+                    if (_messageQueue.TryPeek(out top))
+                    {
+                        //resend message
+                        if (!top.RertyExceeded())
+                        {
+                            top.RetryCount++;
+                            SendObjectToTcpClient(_messageHistory[top.OriginalMessage.MessageId]);
+                        } else
+                        {
+                            _log.Error("Retry count exceeded for message: " + top.OriginalMessage.MessageId);
+                            _messageQueue.TryDequeue(out top);//ignore for now
+                            ClientNotRespondingEvent();
+                        }
+                    }
+                    else
+                    {
+                        _log.Error("Message could not be read from queue");
+                    }
+                }
+            }
+        }
+
+        private void EnsureProperMessageOrder(byte[] messageBytes)
+        {
+            var stream = new System.IO.MemoryStream(messageBytes);
+            var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+            _incommingMessages.TryAdd(message.MessageId, messageBytes);
+            var justRecievedId = message.MessageId;
+            if(!_incommingMessages.IsEmpty)
+            {
+                while(_incommingMessages.ContainsKey(_nextReceivedMessageId)) {
+                    HandleRecievedMessage(_incommingMessages[_nextReceivedMessageId]);
+                    _nextReceivedMessageId++;
+                }
+                if(_nextReceivedMessageId < justRecievedId)
+                {
+                    SendObjectToTcpClient_Imp(new TanksCommon.SharedObjects.MessageResend() { MessageId = _nextReceivedMessageId }, "EnsureProperMessageOrder");//bypass message id and queue logic
+                }
+            }
+
         }
     }
 }
