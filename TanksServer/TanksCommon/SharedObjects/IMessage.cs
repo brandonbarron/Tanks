@@ -19,6 +19,7 @@ namespace TanksCommon.SharedObjects
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(Ping))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RequestGames))]
     [System.Xml.Serialization.XmlIncludeAttribute(typeof(RequestMove))]
+    [System.Xml.Serialization.XmlIncludeAttribute(typeof(MessageResend))]
     [System.Xml.Serialization.XmlRoot(ElementName = "Message", Namespace = "http://Message.io")]
     public interface IMessage
     {

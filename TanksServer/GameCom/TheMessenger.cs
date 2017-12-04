@@ -17,6 +17,7 @@ namespace GameCom
         public static event ReceivedDataDelegateForLog ReceivedDataLog;
         public delegate void RecievedMessage(byte[] messageBytes);
         public event RecievedMessage HandleRecievedMessage;
+        public event RecievedMessage HandleDebugRecievedMessage;
         public delegate void ClientNotResponding();
         public event ClientNotResponding ClientNotRespondingEvent;
         protected TcpClient _clientSocket;
@@ -87,7 +88,7 @@ namespace GameCom
             }
         }
 
-        protected void SendDataToClient(byte[] messageBytes)
+        public void SendDataToClient(byte[] messageBytes)
         {
             _log.Debug("Sending data to client");
             NetworkStream networkStream = _clientSocket.GetStream();
@@ -110,7 +111,7 @@ namespace GameCom
             SendObjectToTcpClient_Imp(theObject, sendingFrom);
         }
 
-        private void SendObjectToTcpClient_Imp<T>(T theObject, string sendingFrom ) where T : TanksCommon.SharedObjects.IMessage
+        public void SendObjectToTcpClient_Imp<T>(T theObject, string sendingFrom ) where T : TanksCommon.SharedObjects.IMessage
         {
             using (var stream = new System.IO.MemoryStream())
             {
@@ -128,7 +129,7 @@ namespace GameCom
 
         public void CallReceivedDataLog(string message)
         {
-            ReceivedDataLog(message);
+            ReceivedDataLog?.Invoke(message);
         }
 
         private void AcknowledgeMessage(byte[] messageBytes)
@@ -138,6 +139,7 @@ namespace GameCom
             if (message.Id == 900)
             {
                 //resend message
+                HandleDebugRecievedMessage?.Invoke(messageBytes);
                 SendObjectToTcpClient(_messageHistory[message.MessageId]);
             }
             else if (message.Id != 99)
@@ -169,6 +171,7 @@ namespace GameCom
             //retry message sending message when hashing failed
             var stream = new System.IO.MemoryStream(messageBytes);
             var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+            ReceivedDataLog?.Invoke("Hash failed. Asking to resend Message: " + message.MessageId);
             SendObjectToTcpClient_Imp(new TanksCommon.SharedObjects.MessageResend() { MessageId = message.MessageId }, "HandleHashFailed");//bypass message id and queue logic
         }
 
@@ -212,11 +215,13 @@ namespace GameCom
             if(!_incommingMessages.IsEmpty)
             {
                 while(_incommingMessages.ContainsKey(_nextReceivedMessageId)) {
-                    HandleRecievedMessage(_incommingMessages[_nextReceivedMessageId]);
+                    HandleRecievedMessage?.Invoke(_incommingMessages[_nextReceivedMessageId]);
                     _nextReceivedMessageId++;
                 }
                 if(_nextReceivedMessageId < justRecievedId)
                 {
+                    ReceivedDataLog?.Invoke("Request to resend Message: " + _nextReceivedMessageId);
+                    _log.Debug("Request to resend Message: " + _nextReceivedMessageId);
                     SendObjectToTcpClient_Imp(new TanksCommon.SharedObjects.MessageResend() { MessageId = _nextReceivedMessageId }, "EnsureProperMessageOrder");//bypass message id and queue logic
                 }
             }

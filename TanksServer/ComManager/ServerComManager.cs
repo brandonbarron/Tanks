@@ -17,6 +17,10 @@ namespace ComManager
         public event ReceivedDataNewGameSever NewGameServerConnected;
         public delegate void ReceivedDataDelegateForLog(string logString);
         public event ReceivedDataDelegateForLog ReceivedDataLog;
+
+        public delegate void ServerClientForTest(ServerMessenger client);
+        public event ServerClientForTest ReceivedServerClientForTest;
+
         System.Threading.Thread _udpThread;
         public ServerComManager(System.Net.Sockets.UdpClient udpClient)
         {
@@ -57,6 +61,39 @@ namespace ComManager
         {
             //var client = new ServerMessenger(clientSocket, clientId, token);//TODO: this would be the game manager instead
             var Game = new Game.TheGame(clientSocket, clientId, token);
+        }
+
+        public void StartForTestOnly(int port, System.Threading.CancellationToken token)
+        {
+            _udpThread = new System.Threading.Thread(() => _udpReceiver.ReceiveStuff(token));
+            _udpThread.Start();
+
+            System.Net.Sockets.TcpListener serverSocket = new System.Net.Sockets.TcpListener(System.Net.IPAddress.Any, port);
+            SocketEventInfo?.Invoke("Listening");
+            System.Net.Sockets.TcpClient clientSocket = default(System.Net.Sockets.TcpClient);
+            int clientId = 0;
+
+            serverSocket.Start();
+
+            clientId = 0;
+
+            while (!token.IsCancellationRequested)
+            {
+                clientId += 1;
+                clientSocket = serverSocket.AcceptTcpClient();
+                _log.Debug($"New TCP Client connected");
+                System.Threading.Thread thread = new System.Threading.Thread(() => StartServerMessengerForTest(clientSocket, clientId, token));
+                thread.Start();
+            }
+            clientSocket.Close();
+            serverSocket.Stop();
+            SocketEventInfo?.Invoke("Closed");
+        }
+
+        public void StartServerMessengerForTest(System.Net.Sockets.TcpClient clientSocket, int clientId, System.Threading.CancellationToken token)
+        {
+            var client = new ServerMessenger(clientSocket, clientId, token);
+            ReceivedServerClientForTest(client);
         }
 
         private void _udpReceiver_ReceivedData(byte[] messageBytes)
