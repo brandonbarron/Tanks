@@ -227,5 +227,34 @@ namespace GameCom
             }
 
         }
+
+
+
+        /* TODO:
+         * Background: 
+         * The way this works is that server creates an encryption method that only server can decrypt.
+         * Server sends "public" keys that can ONLY be used to encrypt.
+         * There needs to be an exchange of two sets of keys: RSA and AES.
+         * The server will send RSA public keys to client.
+         * Client will then encrypt AES keys using the provided RSA public keys.
+         * 
+         * 
+         * For encryption to be enabled, we must do the following:
+         * Server creates TanksCommon.Encryption.EncryptioinKeys --creates RSA keys
+         * RSA public keys are obtained by calling ExportPublicKeys()
+         * Server sends client RSA public Keys -- we can use Encryption.RsaPublicKey as the message which has the id of 500
+         * client Creates instatnce of TanksCommon.Encryption.EncryptioinKeys and imports server RSA Public keys with ImportPublicKey(..)
+         * client makes instance of GameCom.Encrypt using local RSA encryption keys
+         * client sends AES public keys to server -- we can use Encryption.RsaPublicKey which has the id of 501
+         * Server now sets the received public AES keys using SetIvAndSessionKey(...)
+         * Server can now decrypt anything that the client sends using GameCom.Encrypt.DecryptBytes(...)
+         * 
+         * 
+         * Implementation Ideas:
+         * To keep things simlpe we can do communication is encrypted one way, client to server.
+         * To keep things generic we can set a byte in the message stream to contain a boolean of if the message is encrypted
+         *     and only decrypt if so
+         * 
+         * */
     }
 }

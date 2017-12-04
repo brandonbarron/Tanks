@@ -23,14 +23,25 @@ namespace TanksCommonTest
                 messageBytes = messageStream.ToArray();
             }
 
-            RSACryptoServiceProvider rsaKey1 = new RSACryptoServiceProvider();
-            RSACryptoServiceProvider rsaKey2 = new RSACryptoServiceProvider();
+            //can only encrypt messages, only has public key
+            TanksCommon.Encryption.EncryptioinKeys clientKey = new TanksCommon.Encryption.EncryptioinKeys();
+            //can decrypt messages, has public and private key
+            TanksCommon.Encryption.EncryptioinKeys serverKey = new TanksCommon.Encryption.EncryptioinKeys();
 
-            rsaKey1.ImportCspBlob(rsaKey2.ExportCspBlob(false));
+            //server provides public RSA keys and client imports them
+            clientKey.ImportPublicKey(serverKey.ExportPublicKey());
 
-            var e1 = GameCom.Encrypt.EncryptBytes(rsaKey1, messageBytes, out byte[] iv, out byte[] encryptedSessionKey);
+            //client can encrypt AES keys with the provided RSA keys
+            var clientEncryptor = new GameCom.Encrypt(clientKey);
 
-            var d1 = GameCom.Encrypt.DecryptBytes(rsaKey2, iv, encryptedSessionKey, e1);
+            //server sets public AES keys
+            serverKey.SetIvAndSessionKey(clientKey.Iv, clientKey.SessionKey);
+
+            var e1 = clientEncryptor.EncryptBytes(messageBytes);
+
+            var d1 = GameCom.Encrypt.DecryptBytes(serverKey, e1);
+
+            Assert.IsFalse(messageBytes.SequenceEqual(e1));
 
             Assert.IsTrue(messageBytes.SequenceEqual(d1));
         }
