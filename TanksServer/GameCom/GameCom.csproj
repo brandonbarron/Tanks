@@ -44,6 +44,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ClientMessenger.cs" />
+    <Compile Include="Encrypt.cs" />
     <Compile Include="Hash.cs" />
     <Compile Include="MessageInfo.cs" />
     <Compile Include="Messenger.cs" />

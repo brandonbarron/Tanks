@@ -48,13 +48,10 @@
     <Reference Include="System.Core" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="EncryptTest.cs" />
     <Compile Include="TanksCommonTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TanksServerTest.cs" />
-    <Compile Include="ClientTesterTest.cs" />
-    <Compile Include="GameTest.cs" />
     <Compile Include="GameComTest.cs" />
-    <Compile Include="GameServerTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

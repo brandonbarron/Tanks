@@ -77,7 +77,7 @@ namespace TanksCommonTest
         public void MessageRequestResend()
         {
             TheMessenger.ReceivedDataDelegateForLog theHandler;
-            bool eventHit = false;
+            //bool eventHit = false;
             TheMessenger.ReceivedDataLog += theHandler = (messageText) =>
             {
                 //should be asking to resend a message 
