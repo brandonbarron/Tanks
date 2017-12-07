@@ -27,7 +27,7 @@ namespace Game
                     var ping = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.Ping>(stream);
                     _log.Debug($"Received Ping: {ping}");
                     _serverMessenger.CallReceivedDataLog($"Received ping: {ping}");
-                    _serverMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.Ping() { PlayerId = 0 });
+                    //_serverMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.Ping() { PlayerId = 0 });
                     break;
                 case 1:
                     var gameStatus = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.GameStatus>(stream);

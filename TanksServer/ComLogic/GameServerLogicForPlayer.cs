@@ -66,7 +66,7 @@ namespace ComLogic
         private void SendPing()
         {
             _log.Debug("Sending Ping");
-            _gameServerMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.Ping() { PlayerId = 0 });
+            //_gameServerMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.Ping() { PlayerId = 0 });
         }
 
         public void DisconnectFromGameServer()
@@ -146,6 +146,8 @@ namespace ComLogic
                     var ack = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
                     _log.Debug($"Received DataReceived: {ack.MessageId}");
                     ReceivedDataLog($"Received DataReceived: {ack.MessageId}");
+                    break;
+                case 500:
                     break;
             }
         }

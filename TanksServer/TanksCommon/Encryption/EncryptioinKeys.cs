@@ -9,6 +9,7 @@ namespace TanksCommon.Encryption
     public class EncryptioinKeys
     {
         System.Security.Cryptography.RSACryptoServiceProvider _rsaKey;
+        public bool Active { get; private set; }
         byte[] _iv;
         byte[] _encryptedSessionKey;
 
@@ -25,6 +26,7 @@ namespace TanksCommon.Encryption
         {
             _iv = (byte[])iv.Clone();
             _encryptedSessionKey = (byte[])encryptedSessionKey.Clone();
+            Active = true;
         }
 
         public void ImportPublicKey(byte[] publickey)

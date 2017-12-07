@@ -18,7 +18,7 @@ namespace GameCom
 
         private readonly UdpSender _udpSender;
         public bool testConnect;
-        public ClientMessenger(UdpClient udpClient, System.Threading.CancellationToken token) : base(new TcpClient(), 123)
+        public ClientMessenger(UdpClient udpClient, System.Threading.CancellationToken token) : base(new TcpClient(), 123, false)
         {
             _cancelToken = token;
             log4net.Config.XmlConfigurator.Configure();
@@ -35,6 +35,8 @@ namespace GameCom
                 testConnect = true;
                 System.Threading.Thread thread = new System.Threading.Thread(() => GetStream(_cancelToken));
                 thread.Start();
+                var publicKey = encryptioinKeys.ExportPublicKey();
+                SendObjectToTcpClient(new TanksCommon.Encryption.RsaPublicKey() { Key = publicKey });
                 return true;
             }
             catch
@@ -61,5 +63,6 @@ namespace GameCom
             _clientSocket.Dispose();
         }
 
+        
     }
 }

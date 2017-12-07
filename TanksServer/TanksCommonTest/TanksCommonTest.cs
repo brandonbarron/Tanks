@@ -45,5 +45,15 @@ namespace TanksTest
 
             
         }
+
+        [TestMethod]
+        public void TestSerialization()
+        {
+            TanksCommon.Encryption.RsaPublicKey testKey = new TanksCommon.Encryption.RsaPublicKey();
+            MemoryStream testStream = new MemoryStream();
+            testKey.Key = new byte[1024];
+            var result = TanksCommon.MessageEncoder.EncodeMessage(testStream, testKey);
+            Assert.IsNotNull(result);
+        }
     }
 }

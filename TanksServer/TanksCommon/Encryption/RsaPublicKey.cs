@@ -12,5 +12,6 @@ namespace TanksCommon.Encryption
     {
         public short Id { get => 500; }
         public int MessageId { get; set; }
+        public byte[] Key { get; set; }
     }
 }

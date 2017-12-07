@@ -14,7 +14,7 @@ namespace GameCom
     {
         private static readonly ILog _log = LogManager.GetLogger(typeof(ServerMessenger));
 
-        public ServerMessenger(TcpClient clientSocket, int clientId, CancellationToken token) : base(clientSocket, clientId)
+        public ServerMessenger(TcpClient clientSocket, int clientId, CancellationToken token) : base(clientSocket, clientId, true)
         {
             //this._clientId = clientId;
             Thread thread = new Thread(() => GetStream(token));
