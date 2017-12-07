@@ -44,6 +44,15 @@ namespace TanksCommonTest
             Assert.IsFalse(messageBytes.SequenceEqual(e1));
 
             Assert.IsTrue(messageBytes.SequenceEqual(d1));
+
+            //serverKey.SetIvAndSessionKey(clientKey.Iv, clientKey.SessionKey);
+            /*var serverEncrypter = new GameCom.Encrypt(serverKey);
+
+            var e2 = serverEncrypter.EncryptBytes(messageBytes);
+
+            var d2 = GameCom.Encrypt.DecryptBytes(clientKey, e2);
+
+            Assert.IsTrue(d2.SequenceEqual(messageBytes));*/
         }
 
     }

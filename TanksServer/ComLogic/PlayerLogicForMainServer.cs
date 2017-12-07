@@ -88,7 +88,7 @@ namespace ComLogic
         private void SendPing()
         {
             _log.Debug("Sending Ping");
-            _mainServerMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.Ping() { PlayerId = 0 });
+            //_mainServerMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.Ping() { PlayerId = 0 });
         }
         
         public int GetGameStatus()

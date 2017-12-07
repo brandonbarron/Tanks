@@ -55,6 +55,7 @@ namespace GameCom
                 if (message != null && message.Length > 0)
                 {
                     var decodedBytes = CheckEncryption(message.Skip(32).ToArray());
+                    //var decodedBytes = message.Skip(33).ToArray();
                     if (!Hash.HashAndCompare(decodedBytes, message.Take(32).ToArray()))
                     {
                         _log.Error("hash not equal");
@@ -63,7 +64,7 @@ namespace GameCom
                     }
                     AcknowledgeMessage((byte[])decodedBytes.Clone());
                     //check if right order
-                    EnsureProperMessageOrder(decodedBytes);
+                    EnsureProperMessageOrder((byte[])decodedBytes.Clone());
                 }
                 return true;
             }
@@ -117,14 +118,14 @@ namespace GameCom
                 _log.Error("Object to send is null");
                 throw new ArgumentException("Object to send cannot be null", "theObject");
             }
-            SendObjectToTcpClient_Imp(theObject, sendingFrom);
+            //SendObjectToTcpClient_Imp(theObject, sendingFrom);
             if (theObject.Id != 99) //ignore keeping track of the ack 
             {
                 theObject.MessageId = _mesageId++;
                 _messageHistory.TryAdd(theObject.MessageId, theObject);
                 _messageQueue.Enqueue(new MessageInfo<TanksCommon.SharedObjects.IMessage>(theObject));
             }
-            //SendObjectToTcpClient_Imp(theObject, sendingFrom);
+            SendObjectToTcpClient_Imp(theObject, sendingFrom);
         }
 
         public void SendObjectToTcpClient_Imp<T>(T theObject, string sendingFrom) where T : TanksCommon.SharedObjects.IMessage
@@ -137,17 +138,21 @@ namespace GameCom
                 var messageBytes = messageStream.ToArray();
                 var hash = Hash.HashData(messageBytes);
                 List<byte> byteList = new List<byte>(hash);
-                var encryptedBytes = EncryptMessage(messageBytes, theObject.Id);
-                byteList.Add(System.Convert.ToByte(false && theObject.Id != 501));
-                byteList.AddRange(encryptedBytes);
+                var didEncrypt = EncryptMessage(ref messageBytes, theObject.Id);
+                byteList.Add(System.Convert.ToByte(didEncrypt));
+                byteList.AddRange(messageBytes);
 
                 this.SendDataToClient(byteList.ToArray());
             }
         }
 
-        private byte[] EncryptMessage(byte[] messageBytes, int messageType)
+        private bool EncryptMessage(ref byte[] messageBytes, int messageType)
         {
-            return false && messageType != 501? aesEncrypter.EncryptBytes(messageBytes): messageBytes;
+            if (!_isServer && messageType != 501 && aesEncrypter != null) {
+                messageBytes = aesEncrypter.EncryptBytes(messageBytes);
+                return true;
+            }
+            return false;
         }
 
         public void CallReceivedDataLog(string message)
@@ -161,15 +166,19 @@ namespace GameCom
             var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
             if (message.Id == 500)
             {
+                SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
+
                 var rsaPublicKeys = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.Encryption.RsaPublicKey>(stream);
                 encryptioinKeys.ImportPublicKey(rsaPublicKeys.Key);
 
                 aesEncrypter = new Encrypt(encryptioinKeys);
                 SendObjectToTcpClient(new TanksCommon.Encryption.AesPublicKey() { Iv = encryptioinKeys.Iv, SessionKey = encryptioinKeys.SessionKey });
-
+                
             }
             else if (message.Id == 501)
             {
+                SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
+
                 var aesPublicKeys = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.Encryption.AesPublicKey>(stream);
                 encryptioinKeys.SetIvAndSessionKey(aesPublicKeys.Iv, aesPublicKeys.SessionKey);
             }
@@ -226,7 +235,7 @@ namespace GameCom
                         //resend message
                         if (!top.RertyExceeded())
                         {
-                            top.RetryCount++;
+                            top.RetryCount++;//TODO: need to change the type from IMessage to actuall message type
                             //SendObjectToTcpClient(_messageHistory[top.OriginalMessage.MessageId]);
                         } else
                         {
