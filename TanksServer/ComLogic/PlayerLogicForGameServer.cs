@@ -114,6 +114,12 @@ namespace ComLogic
             _log.Debug($"Sending GameReg: {gameServerRegister}");
             _clientMessenger.SendObjectToUdpPeers(gameServerRegister);
         }
+
+        private void SendListOfGames()
+        {
+            _clientMessenger.SendObjectToTcpClient(new TanksCommon.SharedObjects.ListOfOpenGames());
+        }
+
         private void HandleRecievedMessage(byte[] messageBytes)
         {
             var stream = new System.IO.MemoryStream(messageBytes);
@@ -164,6 +170,12 @@ namespace ComLogic
                     var listOfOpenGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.ListOfOpenGames>(stream);
                     _log.Debug($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
                     ReceivedDataLog($"Received listOfOpenGames{listOfOpenGames.MessageId}: {listOfOpenGames}");
+                    break;
+                case 9:
+                    var RequestGames = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.RequestGames>(stream);
+                    _log.Debug($"Received RequestGames{RequestGames.MessageId}: {RequestGames}");
+                    ReceivedDataLog($"Received RequestGames{RequestGames.MessageId}: {RequestGames}");
+                    SendListOfGames();
                     break;
                 case 99:
                     var ack = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);

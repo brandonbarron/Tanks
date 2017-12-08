@@ -9,7 +9,6 @@ namespace GameServer
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(GameViewModel));
         private readonly MahApps.Metro.Controls.Dialogs.IDialogCoordinator _dialogCoordinator;
         private readonly ComLogic.PlayerLogicForGameServer _playerLogicForGameServer;
-        private readonly Game.TheGame _theGame;
 
         
         public GameViewModel(MahApps.Metro.Controls.Dialogs.IDialogCoordinator instance)
