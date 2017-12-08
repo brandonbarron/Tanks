@@ -9,6 +9,7 @@ namespace GameServer
         private static readonly log4net.ILog _log = log4net.LogManager.GetLogger(typeof(GameViewModel));
         private readonly MahApps.Metro.Controls.Dialogs.IDialogCoordinator _dialogCoordinator;
         private readonly ComLogic.PlayerLogicForGameServer _playerLogicForGameServer;
+        private readonly Game.TheGame _theGame;
 
         
         public GameViewModel(MahApps.Metro.Controls.Dialogs.IDialogCoordinator instance)
@@ -18,6 +19,7 @@ namespace GameServer
             _stopServerCommand = new DelegateCommand<object>((p) => StopServer());
             _connectToServerCommand = new DelegateCommand<object>((p) => ConnectToMainServer());
             _disconnectServerCommand = new DelegateCommand<object>((p) => DisconnectFromMainServer());
+            _sendMessageCommand = new DelegateCommand<object>((p) => SendMessageToClient());
             ServerStatus = "Dead";
             GamePort = 1501;
             ServerAddress = "127.0.0.1";
@@ -41,6 +43,8 @@ namespace GameServer
         public DelegateCommand<object> ConnectToServerCommand { get => _connectToServerCommand; }
         private readonly DelegateCommand<object> _disconnectServerCommand;
         public DelegateCommand<object> DisconnectServerCommand { get => _disconnectServerCommand; }
+        private readonly DelegateCommand<object> _sendMessageCommand;
+        public DelegateCommand<object> SendMessageCommand { get => _sendMessageCommand; }
         public int GamePort { get; set; } //TODO:does this need to change?
         public string ServerAddress { get; set; }
         public int ServerPort { get; set; }
@@ -89,6 +93,13 @@ namespace GameServer
         private void DisconnectFromMainServer()
         {
             _playerLogicForGameServer.DisconnectFromMainServer();
+        }
+
+        private void SendMessageToClient()
+        {
+            //TODO: Working on using the Game.cs logic to send a message to the client.
+            //_theGame
+            _log.Debug("Hey I can send a move!");
         }
 
         private void ServerMessenger_ReceivedDataLog(string logString)

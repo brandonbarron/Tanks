@@ -55,6 +55,7 @@
             <StackPanel Grid.Column="2" Orientation="Horizontal" Grid.Row="1">
                 <Label Content="Game Server Status:"/>
                 <Label Content="{Binding GameServerServerStatus, UpdateSourceTrigger=PropertyChanged}"/>
+                <Button Content="Send Message" Command="{Binding SendMessageCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
             </StackPanel>
         </Grid>
         <Separator Grid.Row="1" VerticalAlignment="Center"/>
