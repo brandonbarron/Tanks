@@ -36,6 +36,13 @@ namespace GameCom
             _clientId = clientId;
             _clientSocket = tcpSocket;
             _isServer = isServer;
+            if(_isServer)
+            {
+                CallReceivedDataLog("Is an encryption Server");
+            } else
+            {
+                CallReceivedDataLog("Is an encryption Client");
+            }
             _mesageId = 0;
             _nextReceivedMessageId = 0;
             _messageQueue = new System.Collections.Concurrent.ConcurrentQueue<MessageInfo<TanksCommon.SharedObjects.IMessage>>();
@@ -79,6 +86,8 @@ namespace GameCom
         {
             if (System.Convert.ToBoolean(message[0]))
             {
+                _log.Debug("Decrypting message");
+                CallReceivedDataLog("Decrypting message");
                 return Encrypt.DecryptBytes(encryptioinKeys, message.Skip(1).ToArray());
             }
             return message.Skip(1).ToArray();
@@ -142,16 +151,22 @@ namespace GameCom
                 byteList.Add(System.Convert.ToByte(didEncrypt));
                 byteList.AddRange(messageBytes);
 
+                _log.Debug("Sending MessageId: " + theObject.MessageId);
+                CallReceivedDataLog("Sending MessageId: " + theObject.MessageId);
+
                 this.SendDataToClient(byteList.ToArray());
             }
         }
 
         private bool EncryptMessage(ref byte[] messageBytes, int messageType)
         {
-            if (!_isServer && messageType != 501 && aesEncrypter != null) {
+            
+            if (_isServer && messageType != 501 && aesEncrypter != null) {
                 messageBytes = aesEncrypter.EncryptBytes(messageBytes);
+                CallReceivedDataLog("Encrypting message");
                 return true;
             }
+            CallReceivedDataLog("Not Encrypting message");
             return false;
         }
 
@@ -163,39 +178,59 @@ namespace GameCom
         private void AcknowledgeMessage(byte[] messageBytes)
         {
             var stream = new System.IO.MemoryStream(messageBytes);
-            var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
-            if (message.Id == 500)
+            //var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+            short messageType = TanksCommon.MessageDecoder.DecodeMessageType(stream);
+            _log.Debug("Received Message Type: " + messageType);
+            CallReceivedDataLog("Received Message Type: " + messageType);
+            if (messageType == 500)
             {
+                _log.Debug("Recieved RSA Public Key");
+                CallReceivedDataLog("Recieved RSA Public Key");
+                var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
                 SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
 
                 var rsaPublicKeys = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.Encryption.RsaPublicKey>(stream);
                 encryptioinKeys.ImportPublicKey(rsaPublicKeys.Key);
 
                 aesEncrypter = new Encrypt(encryptioinKeys);
+                _log.Debug("Sending AES Public Keys");
+                CallReceivedDataLog("Sending AES Public Keys");
                 SendObjectToTcpClient(new TanksCommon.Encryption.AesPublicKey() { Iv = encryptioinKeys.Iv, SessionKey = encryptioinKeys.SessionKey });
                 
             }
-            else if (message.Id == 501)
+            else if (messageType == 501)
             {
+                _log.Debug("Recieved AES Public Keys");
+                CallReceivedDataLog("Recieved AES Public Keys");
+                var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
                 SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
 
                 var aesPublicKeys = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.Encryption.AesPublicKey>(stream);
                 encryptioinKeys.SetIvAndSessionKey(aesPublicKeys.Iv, aesPublicKeys.SessionKey);
             }
-            else if (message.Id == 900)
+            else if (messageType == 900)
             {
                 //resend message
                 HandleDebugRecievedMessage?.Invoke(messageBytes);
-                SendObjectToTcpClient(_messageHistory[message.MessageId]);
+                var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
+                if (_messageHistory.ContainsKey(message.MessageId))
+                {
+                    SendObjectToTcpClient(_messageHistory[message.MessageId]);
+                } else
+                {
+                    _log.Error("Peer is requesting Message that is not in message history");
+                    CallReceivedDataLog("Peer is requesting Message that is not in message history");
+                }
             }
-            else if (message.Id != 99)
+            else if (messageType != 99)
             {
+                var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
                 SendObjectToTcpClient(new TanksCommon.SharedObjects.DataReceived() { MessageId = message.MessageId, Id = 99 });
-                
             }
             else 
             {
                 //remove message from queue, marking it complete
+                var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
                 var top = new MessageInfo<TanksCommon.SharedObjects.IMessage>();
                 if (_messageQueue.TryPeek(out top))
                 {
@@ -241,7 +276,7 @@ namespace GameCom
                         {
                             _log.Error("Retry count exceeded for message: " + top.OriginalMessage.MessageId);
                             _messageQueue.TryDequeue(out top);//ignore for now
-                            ClientNotRespondingEvent();
+                            ClientNotRespondingEvent?.Invoke();
                         }
                     }
                     else
@@ -258,7 +293,10 @@ namespace GameCom
             var message = TanksCommon.MessageDecoder.DecodeMessage<TanksCommon.SharedObjects.DataReceived>(stream);
             _incommingMessages.TryAdd(message.MessageId, messageBytes);
             var justRecievedId = message.MessageId;
-            if(!_incommingMessages.IsEmpty)
+            _log.Debug("Just receved MessageId: " + justRecievedId);
+            CallReceivedDataLog("Just receved MessageId: " + justRecievedId);
+
+            if (!_incommingMessages.IsEmpty)
             {
                 while(_incommingMessages.ContainsKey(_nextReceivedMessageId)) {
                     HandleRecievedMessage?.Invoke(_incommingMessages[_nextReceivedMessageId]);
@@ -272,6 +310,15 @@ namespace GameCom
                 }
             }
 
+        }
+
+        public void SendRSAPublicKeys()
+        {
+            var publicKey = encryptioinKeys.ExportPublicKey();
+            System.Threading.Thread.Sleep(100);
+            _log.Debug("Sending RSA Public Key");
+            CallReceivedDataLog("Sending RSA Public Key");
+            SendObjectToTcpClient(new TanksCommon.Encryption.RsaPublicKey() { Key = publicKey });
         }
 
 

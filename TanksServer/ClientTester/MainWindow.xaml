@@ -68,9 +68,9 @@
                 </StackPanel>
                 <UniformGrid>
                     <Button Content="Get Open Games" Command="{Binding AskOpenGamesCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
-                    <Button Content="Join Game" Command="{Binding JoinGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    <Button Visibility="Hidden" Content="Join Game" Command="{Binding JoinGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
                     <Button Content="Send Move" Command="{Binding SendMoveCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
-                    <Button Content="Leave game" Command="{Binding LeaveGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
+                    <Button Visibility="Hidden" Content="Leave game" Command="{Binding LeaveGameCommand}" Margin="3" HorizontalAlignment="Left" VerticalAlignment="Center" Style="{StaticResource AccentedSquareButtonStyle}"/>
                 </UniformGrid>
             </StackPanel>
         </Grid>

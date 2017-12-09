@@ -35,8 +35,11 @@ namespace GameCom
                 testConnect = true;
                 System.Threading.Thread thread = new System.Threading.Thread(() => GetStream(_cancelToken));
                 thread.Start();
-                var publicKey = encryptioinKeys.ExportPublicKey();
-                SendObjectToTcpClient(new TanksCommon.Encryption.RsaPublicKey() { Key = publicKey });
+                //var publicKey = encryptioinKeys.ExportPublicKey();
+                //System.Threading.Thread.Sleep(100);
+                //_log.Debug("Sending RSA Public Key");
+                //CallReceivedDataLog("Sending RSA Public Key");
+                //SendObjectToTcpClient(new TanksCommon.Encryption.RsaPublicKey() { Key = publicKey });
                 return true;
             }
             catch

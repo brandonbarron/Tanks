@@ -60,7 +60,8 @@ namespace ComLogic
         public void ConnectToGameServer(string ipAddress, int port)
         {
             _gameServerMessenger.Connect(ipAddress, port);
-            this.SendPing();
+            //this.SendPing();
+            _gameServerMessenger.SendRSAPublicKeys();
         }
 
         private void SendPing()
@@ -147,7 +148,7 @@ namespace ComLogic
                     _log.Debug($"Received DataReceived: {ack.MessageId}");
                     ReceivedDataLog($"Received DataReceived: {ack.MessageId}");
                     break;
-                case 500:
+                case 50:
                     break;
             }
         }

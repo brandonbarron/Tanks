@@ -10,7 +10,7 @@ namespace TanksCommon.SharedObjects
     [System.Xml.Serialization.XmlRoot(ElementName = "Message", Namespace = "http://Message.io")]
     public class Ping : IMessage
     {
-        public short Id { get => 0; }
+        public short Id { get => 20; }
         public int MessageId { get; set; }
         public int PlayerId { get; set; }
     }

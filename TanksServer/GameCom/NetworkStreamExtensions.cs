@@ -96,7 +96,7 @@ namespace GameCom
             byte[] bytes = new byte[bytesToRead];
             int bytesRead = 0;
 
-            _log.DebugFormat("Try to read {0} length bytes, with stream.CanRead={1} and stream.ReadTimeout={2}", bytesToRead, stream.CanRead, stream.ReadTimeout);
+            //_log.DebugFormat("Try to read {0} length bytes, with stream.CanRead={1} and stream.ReadTimeout={2}", bytesToRead, stream.CanRead, stream.ReadTimeout);
 
             int remainingTime = stream.ReadTimeout;
             while (stream.CanRead && bytesRead < bytesToRead && remainingTime > 0)
