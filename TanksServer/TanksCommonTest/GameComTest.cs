@@ -81,7 +81,10 @@ namespace TanksCommonTest
             TheMessenger.ReceivedDataLog += theHandler = (messageText) =>
             {
                 //should be asking to resend a message 
-                Assert.IsTrue(messageText.Contains("Request to resend Message: "));
+                if (messageText.Contains("Request"))
+                {
+                    Assert.IsTrue(messageText.Contains("Request to resend Message: "));
+                }
                 //eventHit = true;
             };
 
